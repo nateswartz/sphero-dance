@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Sphero Testing</string>
+    <string name="welcome_text">Hello World!</string>
+</resources>
