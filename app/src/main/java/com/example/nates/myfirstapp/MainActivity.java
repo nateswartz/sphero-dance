@@ -216,14 +216,13 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
 
 
         macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new LoopStart(50));
+        macro.addCommand(new LoopStart(500));
         macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10));
         macro.addCommand(new Delay(10));
         macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10));
         macro.addCommand(new Delay(10));
         macro.addCommand(new LoopEnd());
         macro.addCommand(new Stabilization(true, 0));
-        macro.addCommand(new GoTo(0));
 
         //Send the macro to the robot and play
         macro.setMode(MacroObject.MacroObjectMode.Normal);
@@ -243,81 +242,54 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         RGB color2 = new RGB(50, 23, 174, 0);
         RGB color3 = new RGB(21, 150, 43, 0);
 
-        // 1.2 Seconds
-        // Color flashing, no movement
-        macro.addCommand(new LoopStart(8));
-        macro.addCommand(color1);
-        macro.addCommand(new Delay(50));
-        macro.addCommand(color2);
-        macro.addCommand(new Delay(50));
-        macro.addCommand(color3);
-        macro.addCommand(new Delay(50));
-        macro.addCommand(new LoopEnd());
 
-        // 0.2 Second
-        // Shaking
-        /*macro.addCommand(new Stabilization(false, 0));
+        // 1 Second
+        // Shaking and flashing
+        macro.addCommand(new Stabilization(false, 0));
         macro.addCommand(new LoopStart(50));
+        macro.addCommand(color1);
         macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10));
         macro.addCommand(new Delay(10));
+        macro.addCommand(color2);
         macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10));
         macro.addCommand(new Delay(10));
         macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stabilization(true, 0));*/
+        macro.addCommand(new Stabilization(true, 0));
 
-        // 6 Seconds
+        // 8 Seconds
         // Rolling around, changing color
-        macro.addCommand(new LoopStart(3));
+        macro.addCommand(new LoopStart(4));
+        macro.addCommand(color1);
         macro.addCommand(new Roll(0.3f, 0, 0));
         macro.addCommand(new Delay(500));
+        macro.addCommand(color2);
         macro.addCommand(new Roll(0.3f, 270, 0));
         macro.addCommand(new Delay(500));
-        macro.addCommand(color1);
+        macro.addCommand(color3);
         macro.addCommand(new Roll(0.3f, 180, 0));
         macro.addCommand(new Delay(500));
+        macro.addCommand(color1);
         macro.addCommand(new Roll(0.3f, 90, 0));
         macro.addCommand(new Delay(500));
-        macro.addCommand(color3);
+        macro.addCommand(color2);
         macro.addCommand(new LoopEnd());
         macro.addCommand(new Stop(0));
 
-
-        // 12 Seconds
-        // 4 x 3 Second Loops
-        // Color change and spin
-        macro.addCommand(new LoopStart(4));
+        // 24 Seconds
+        // 8 x 3 Second Loops
+        // Color change and spin and go crazy
+        macro.addCommand(new LoopStart(8));
         macro.addCommand(color1);
-        macro.addCommand(new Delay(500));
+        macro.addCommand(new Delay(1000));
         macro.addCommand(color2);
-        macro.addCommand(new Delay(500));
+        macro.addCommand(new Stabilization(false, 0));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 150, RawMotor.DriveMode.REVERSE, 150, 225));
+        macro.addCommand(new Delay(225));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.FORWARD, 150, 225));
+        macro.addCommand(new Delay(225));
+        macro.addCommand(new Stabilization(true, 0));
         macro.addCommand(color3);
-        macro.addCommand(new RotateOverTime(1080,1000));
-        macro.addCommand(new Delay(500));
-        macro.addCommand(color1);
-        macro.addCommand(new Delay(500));
-        macro.addCommand(color2);
-        macro.addCommand(new Delay(500));
-        macro.addCommand(color3);
-        macro.addCommand(new Delay(500));
-        macro.addCommand(new LoopEnd());
-
-
-        // 12 Seconds
-        // 4 x 3 Second Loops
-        // Color change and spin
-        macro.addCommand(new LoopStart(4));
-        macro.addCommand(color1);
-        macro.addCommand(new Delay(500));
-        macro.addCommand(color2);
-        macro.addCommand(new Delay(500));
-        macro.addCommand(color3);
-        macro.addCommand(new RotateOverTime(1080,1000));
-        macro.addCommand(new Delay(500));
-        macro.addCommand(color1);
-        macro.addCommand(new Delay(500));
-        macro.addCommand(color2);
-        macro.addCommand(new Delay(500));
-        macro.addCommand(color3);
+        macro.addCommand(new RotateOverTime(540,500));
         macro.addCommand(new Delay(500));
         macro.addCommand(new LoopEnd());
 
@@ -492,6 +464,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             mp.start();
             hasPlayed = true;
             if (mRobot != null && mRobot.isConnected()) {
+                danielTigerDance();
                 //timeForYourCheckupDance();
             }
         } else if (docClicks >= CLICKSTOSTOP){
@@ -509,6 +482,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             mp.start();
             hasPlayed = true;
             if (mRobot != null && mRobot.isConnected()) {
+                danielTigerDance();
                 //itsyBitsySpiderDance();
             }
         } else if (spiderClicks >= CLICKSTOSTOP){
@@ -526,6 +500,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             mp.start();
             hasPlayed = true;
             if (mRobot != null && mRobot.isConnected()) {
+                danielTigerDance();
                 //headShouldersKneesToesDance();
             }
         } else if (headClicks >= CLICKSTOSTOP){
