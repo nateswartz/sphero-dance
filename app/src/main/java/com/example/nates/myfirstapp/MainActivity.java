@@ -310,6 +310,132 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         macro.playMacro();
     }
 
+    private void timeForYourCheckupDance() {
+        if (mRobot == null)
+            return;
+
+        setRobotToDefaultState();
+
+        macro = new MacroObject();
+
+        RGB color1 = new RGB(255, 28, 101, 0);
+        RGB color2 = new RGB(50, 23, 174, 0);
+        RGB color3 = new RGB(21, 150, 43, 0);
+        RGB color4 = new RGB(100, 100, 100, 0);
+
+        // Intro
+        macro.addCommand(color1);
+        macro.addCommand(new Delay(400));
+        macro.addCommand(color2);
+        macro.addCommand(new Delay(400));
+        macro.addCommand(color3);
+        macro.addCommand(new Delay(400));
+
+        // Main Loop
+        macro.addCommand(new LoopStart(6));
+        // Move 1
+        macro.addCommand(color1);
+        macro.addCommand(new Roll(0.3f, 0, 0));
+        macro.addCommand(new Delay(400));
+        macro.addCommand(new Roll(0.3f, 180, 0));
+        macro.addCommand(new Delay(400));
+        // Move 2
+        macro.addCommand(color2);
+        macro.addCommand(new RotateOverTime(720,800));
+        macro.addCommand(new Delay(800));
+        // Move 3
+        macro.addCommand(color3);
+        macro.addCommand(new Delay(300));
+        macro.addCommand(color1);
+        macro.addCommand(new Delay(200));
+        macro.addCommand(color3);
+        macro.addCommand(new Delay(300));
+        // Move 4
+        macro.addCommand(color4);
+        macro.addCommand(new Stabilization(false, 0));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 200));
+        macro.addCommand(new Delay(200));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 200));
+        macro.addCommand(new Delay(200));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 200));
+        macro.addCommand(new Delay(200));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 200));
+        macro.addCommand(new Delay(200));
+        macro.addCommand(new Stabilization(true, 0));
+        macro.addCommand(new LoopEnd());
+
+        // Ending
+        macro.addCommand(new Stabilization(false, 0));
+        macro.addCommand(new LoopStart(40));
+        macro.addCommand(color1);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10));
+        macro.addCommand(new Delay(10));
+        macro.addCommand(color2);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10));
+        macro.addCommand(new Delay(10));
+        macro.addCommand(new LoopEnd());
+        macro.addCommand(new Stabilization(true, 0));
+        macro.addCommand(new Roll(0.0f, 0, 0));
+
+        //Send the macro to the robot and play
+        macro.setMode(MacroObject.MacroObjectMode.Normal);
+        macro.setRobot(mRobot.getRobot());
+        macro.playMacro();
+    }
+
+    private void itsyBitsySpiderDance() {
+        if (mRobot == null)
+            return;
+
+        setRobotToDefaultState();
+
+        macro = new MacroObject();
+
+        RGB color1 = new RGB(255, 28, 101, 0);
+        RGB color2 = new RGB(50, 23, 174, 0);
+        RGB color3 = new RGB(21, 150, 43, 0);
+
+
+        macro.addCommand(new LoopStart(4));
+        macro.addCommand(color1);
+        macro.addCommand(new Delay(1000));
+        macro.addCommand(color2);
+        macro.addCommand(new Delay(1000));
+        macro.addCommand(new LoopEnd());
+
+        //Send the macro to the robot and play
+        macro.setMode(MacroObject.MacroObjectMode.Normal);
+        macro.setRobot(mRobot.getRobot());
+        macro.playMacro();
+    }
+
+
+    private void headShouldersKneesToesDance() {
+        if (mRobot == null)
+            return;
+
+        setRobotToDefaultState();
+
+        macro = new MacroObject();
+
+        RGB color1 = new RGB(255, 28, 101, 0);
+        RGB color2 = new RGB(50, 23, 174, 0);
+        RGB color3 = new RGB(21, 150, 43, 0);
+
+
+        macro.addCommand(new LoopStart(4));
+        macro.addCommand(color1);
+        macro.addCommand(new Delay(1000));
+        macro.addCommand(color2);
+        macro.addCommand(new Delay(1000));
+        macro.addCommand(new LoopEnd());
+
+        //Send the macro to the robot and play
+        macro.setMode(MacroObject.MacroObjectMode.Normal);
+        macro.setRobot(mRobot.getRobot());
+        macro.playMacro();
+    }
+
 
     //Set the robot to a default 'clean' state between running macros
     private void setRobotToDefaultState() {
@@ -464,8 +590,8 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             mp.start();
             hasPlayed = true;
             if (mRobot != null && mRobot.isConnected()) {
-                danielTigerDance();
-                //timeForYourCheckupDance();
+                //danielTigerDance();
+                timeForYourCheckupDance();
             }
         } else if (docClicks >= CLICKSTOSTOP){
             setRobotToDefaultState();
@@ -512,36 +638,4 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         }
     }
 
-    private void itsyBitsySpiderDance() {
-        mRobot.enableStabilization(false);
-        mRobot.setBackLedBrightness(0.5f);
-        mRobot.setRawMotors(RawMotor.DriveMode.REVERSE.ordinal(), 255, RawMotor.DriveMode.FORWARD.ordinal(), 255);
-        try {
-            Thread.sleep(2000);
-        } catch(InterruptedException e){
-        }
-        mRobot.stop();
-    }
-
-    private void timeForYourCheckupDance() {
-        mRobot.enableStabilization(false);
-        mRobot.setBackLedBrightness(0.5f);
-        mRobot.setRawMotors(RawMotor.DriveMode.REVERSE.ordinal(), 255, RawMotor.DriveMode.FORWARD.ordinal(), 255);
-        try {
-            Thread.sleep(2000);
-        } catch(InterruptedException e){
-        }
-        mRobot.stop();
-    }
-
-    private void headShouldersKneesToesDance() {
-        mRobot.enableStabilization(false);
-        mRobot.setBackLedBrightness(0.5f);
-        mRobot.setRawMotors(RawMotor.DriveMode.REVERSE.ordinal(), 255, RawMotor.DriveMode.FORWARD.ordinal(), 255);
-        try {
-            Thread.sleep(2000);
-        } catch(InterruptedException e){
-        }
-        mRobot.stop();
-    }
 }
