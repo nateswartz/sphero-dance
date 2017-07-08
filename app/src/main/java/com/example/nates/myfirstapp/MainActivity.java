@@ -71,6 +71,8 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
     private MediaPlayer mp;
     private final int CLICKSTOSTOP = 2;
     private boolean isAligning = false;
+    private boolean isSpinning = false;
+    private boolean isRunningMacro = false;
     MacroObject macro;
 
     private static final int REQUEST_CODE_LOCATION_PERMISSION = 42;
@@ -189,9 +191,11 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
                 Button runMacroButton = (Button) findViewById(R.id.run_macro);
                 Button ledToggleButton = (Button) findViewById(R.id.back_led_toggle);
                 Button alignButton = (Button) findViewById(R.id.align_button);
+                Button spinButton = (Button) findViewById(R.id.spin_button);
                 runMacroButton.setEnabled(true);
                 ledToggleButton.setEnabled(true);
                 alignButton.setEnabled(true);
+                spinButton.setEnabled(true);
 
                 break;
             }
@@ -199,9 +203,11 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
                 Button runMacroButton = (Button) findViewById(R.id.run_macro);
                 Button ledToggleButton = (Button) findViewById(R.id.back_led_toggle);
                 Button alignButton = (Button) findViewById(R.id.align_button);
+                Button spinButton = (Button) findViewById(R.id.spin_button);
                 runMacroButton.setEnabled(false);
                 ledToggleButton.setEnabled(false);
                 alignButton.setEnabled(false);
+                spinButton.setEnabled(false);
             }
         }
     }
@@ -212,22 +218,27 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
 
         setRobotToDefaultState();
 
-        macro = new MacroObject();
+        if (!isRunningMacro) {
+            isRunningMacro = true;
+            macro = new MacroObject();
 
 
-        macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new LoopStart(500));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stabilization(true, 0));
+            macro.addCommand(new Stabilization(false, 0));
+            macro.addCommand(new LoopStart(500));
+            macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10));
+            macro.addCommand(new Delay(10));
+            macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10));
+            macro.addCommand(new Delay(10));
+            macro.addCommand(new LoopEnd());
+            macro.addCommand(new Stabilization(true, 0));
 
-        //Send the macro to the robot and play
-        macro.setMode(MacroObject.MacroObjectMode.Normal);
-        macro.setRobot(mRobot.getRobot());
-        macro.playMacro();
+            //Send the macro to the robot and play
+            macro.setMode(MacroObject.MacroObjectMode.Normal);
+            macro.setRobot(mRobot.getRobot());
+            macro.playMacro();
+        } else {
+            isRunningMacro = false;
+        }
     }
 
     private void danielTigerDance() {
@@ -436,6 +447,21 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         macro.playMacro();
     }
 
+    private void spin()
+    {
+        if (mRobot == null)
+            return;
+
+        setRobotToDefaultState();
+
+        if (!isSpinning) {
+            mRobot.setRawMotors(RawMotor.DriveMode.REVERSE.ordinal(), 255, RawMotor.DriveMode.FORWARD.ordinal(), 255);
+            isSpinning = true;
+        }
+        else {
+            isSpinning = false;
+        }
+    }
 
     //Set the robot to a default 'clean' state between running macros
     private void setRobotToDefaultState() {
@@ -474,9 +500,18 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             }
         });
 
+        Button spinButton = (Button) findViewById(R.id.spin_button);
+        spinButton.setOnClickListener( new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                spin();
+            }
+        });
+
         runMacroButton.setEnabled(false);
         ledToggleButton.setEnabled(false);
         alignButton.setEnabled(false);
+        spinButton.setEnabled(false);
 
         ImageButton playCheckup = (ImageButton) findViewById(R.id.play_checkup);
         playCheckup.setOnClickListener( new OnClickListener() {
