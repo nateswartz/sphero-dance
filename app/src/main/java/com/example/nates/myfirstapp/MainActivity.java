@@ -249,9 +249,9 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
 
         macro = new MacroObject();
 
-        RGB color1 = new RGB(255, 28, 101, 0);
+        RGB color1 = new RGB(255, 152, 0, 0);
         RGB color2 = new RGB(50, 23, 174, 0);
-        RGB color3 = new RGB(21, 150, 43, 0);
+        RGB color3 = new RGB(224, 10, 12, 0);
 
 
         // 1 Second
@@ -259,37 +259,39 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         macro.addCommand(new Stabilization(false, 0));
         macro.addCommand(new LoopStart(50));
         macro.addCommand(color1);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 255, RawMotor.DriveMode.REVERSE, 255, 10));
         macro.addCommand(new Delay(10));
         macro.addCommand(color2);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 255, RawMotor.DriveMode.FORWARD, 255, 10));
         macro.addCommand(new Delay(10));
         macro.addCommand(new LoopEnd());
         macro.addCommand(new Stabilization(true, 0));
 
         // 8 Seconds
         // Rolling around, changing color
-        macro.addCommand(new LoopStart(4));
+        macro.addCommand(new LoopStart(8));
         macro.addCommand(color1);
-        macro.addCommand(new Roll(0.3f, 0, 0));
-        macro.addCommand(new Delay(500));
+        macro.addCommand(new Roll(0.25f, 0, 0));
+        macro.addCommand(new Delay(250));
         macro.addCommand(color2);
-        macro.addCommand(new Roll(0.3f, 270, 0));
-        macro.addCommand(new Delay(500));
+        macro.addCommand(new Roll(0.25f, 270, 0));
+        macro.addCommand(new Delay(250));
         macro.addCommand(color3);
-        macro.addCommand(new Roll(0.3f, 180, 0));
-        macro.addCommand(new Delay(500));
+        macro.addCommand(new Roll(0.25f, 180, 0));
+        macro.addCommand(new Delay(250));
         macro.addCommand(color1);
-        macro.addCommand(new Roll(0.3f, 90, 0));
-        macro.addCommand(new Delay(500));
+        macro.addCommand(new Roll(0.25f, 90, 0));
+        macro.addCommand(new Delay(250));
         macro.addCommand(color2);
         macro.addCommand(new LoopEnd());
+        macro.addCommand(new Roll(0.25f, 180, 0));
+        macro.addCommand(new Delay(250));
         macro.addCommand(new Stop(0));
 
         // 24 Seconds
         // 8 x 3 Second Loops
         // Color change and spin and go crazy
-        macro.addCommand(new LoopStart(8));
+        macro.addCommand(new LoopStart(7));
         macro.addCommand(color1);
         macro.addCommand(new Delay(1000));
         macro.addCommand(color2);
@@ -298,22 +300,26 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         macro.addCommand(new Delay(225));
         macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.FORWARD, 150, 225));
         macro.addCommand(new Delay(225));
-        macro.addCommand(new Stabilization(true, 0));
         macro.addCommand(color3);
-        macro.addCommand(new RotateOverTime(540,500));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 500));
         macro.addCommand(new Delay(500));
         macro.addCommand(new LoopEnd());
+        macro.addCommand(new Stop(0));
 
         //1.2 Seconds
         // Color flashing, no movement
-        macro.addCommand(new LoopStart(4));
+        macro.addCommand(new LoopStart(8));
         macro.addCommand(color1);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 100));
         macro.addCommand(new Delay(100));
         macro.addCommand(color2);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.REVERSE, 150, 100));
         macro.addCommand(new Delay(100));
         macro.addCommand(color3);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.REVERSE, 200, 100));
         macro.addCommand(new Delay(100));
         macro.addCommand(new LoopEnd());
+        macro.addCommand(new Stop(0));
 
         //Send the macro to the robot and play
         macro.setMode(MacroObject.MacroObjectMode.Normal);
