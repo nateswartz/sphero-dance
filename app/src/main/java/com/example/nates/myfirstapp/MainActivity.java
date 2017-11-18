@@ -24,34 +24,19 @@ import com.orbotix.macro.MacroObject;
 import com.orbotix.macro.cmd.Delay;
 import com.orbotix.macro.cmd.LoopEnd;
 import com.orbotix.macro.cmd.LoopStart;
-import com.orbotix.macro.cmd.RGB;
 import com.orbotix.macro.cmd.RawMotor;
-import com.orbotix.macro.cmd.Roll;
-import com.orbotix.macro.cmd.RotateOverTime;
 import com.orbotix.macro.cmd.Stabilization;
-import com.orbotix.macro.cmd.Stop;
 
-/**
- * Hello World Sample
- * Connect either a Bluetooth Classic or Bluetooth LE robot to an Android Device, then
- * blink the robot's LED on or off every two seconds.
- *
- * This example also covers turning on Developer Mode for LE robots.
- */
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class MainActivity extends Activity implements RobotChangedStateListener {
 
     private ConvenienceRobot mRobot;
     private DualStackDiscoveryAgent mDiscoveryAgent;
-    private String mColor = "red";
-    //BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private boolean isBackLedOn = false;
-    private boolean isMainLedCycling = false;
-    private boolean hasPlayed = false;
-    private int danielClicks = 0;
-    private int docClicks = 0;
-    private int headClicks = 0;
-    private int spiderClicks = 0;
+    private Map<String, Integer> clicks = new HashMap<>();
     private MediaPlayer mp;
     private final int CLICKSTOSTOP = 2;
     private boolean isAligning = false;
@@ -66,15 +51,6 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupButtons();
-
-       /* if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, 1);
-        }*/
-
-       /* try {
-            Thread.sleep(1000);
-        } catch(InterruptedException ex) {}*/
 
         mDiscoveryAgent = new DualStackDiscoveryAgent();
         mDiscoveryAgent.addRobotStateListener(this);
@@ -151,9 +127,6 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             mp.stop();
             mp.release();
         }
-        /*if (mBluetoothAdapter.isEnabled()) {
-            mBluetoothAdapter.disable();
-        }*/
     }
 
     @Override
@@ -174,11 +147,9 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
 
                 Button runMacroButton = (Button) findViewById(R.id.run_macro);
                 Button ledToggleButton = (Button) findViewById(R.id.back_led_toggle);
-                Button alignButton = (Button) findViewById(R.id.align_button);
                 Button spinButton = (Button) findViewById(R.id.spin_button);
                 runMacroButton.setEnabled(true);
                 ledToggleButton.setEnabled(true);
-                alignButton.setEnabled(true);
                 spinButton.setEnabled(true);
 
                 break;
@@ -186,11 +157,9 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             case Offline: {
                 Button runMacroButton = (Button) findViewById(R.id.run_macro);
                 Button ledToggleButton = (Button) findViewById(R.id.back_led_toggle);
-                Button alignButton = (Button) findViewById(R.id.align_button);
                 Button spinButton = (Button) findViewById(R.id.spin_button);
                 runMacroButton.setEnabled(false);
                 ledToggleButton.setEnabled(false);
-                alignButton.setEnabled(false);
                 spinButton.setEnabled(false);
             }
         }
@@ -225,336 +194,6 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         }
     }
 
-    private void danielTigerDance() {
-        if (mRobot == null)
-            return;
-
-        setRobotToDefaultState();
-
-        macro = new MacroObject();
-
-        RGB color1 = new RGB(255, 152, 0, 0);
-        RGB color2 = new RGB(50, 23, 174, 0);
-        RGB color3 = new RGB(224, 10, 12, 0);
-
-
-        // 1 Second
-        // Shaking and flashing
-        macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new LoopStart(50));
-        macro.addCommand(color1);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 255, RawMotor.DriveMode.REVERSE, 255, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(color2);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 255, RawMotor.DriveMode.FORWARD, 255, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stabilization(true, 0));
-
-        // 8 Seconds
-        // Rolling around, changing color
-        macro.addCommand(new LoopStart(8));
-        macro.addCommand(color1);
-        macro.addCommand(new Roll(0.25f, 0, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color2);
-        macro.addCommand(new Roll(0.25f, 270, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color3);
-        macro.addCommand(new Roll(0.25f, 180, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color1);
-        macro.addCommand(new Roll(0.25f, 90, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color2);
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Roll(0.25f, 180, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(new Stop(0));
-
-        // 24 Seconds
-        // 8 x 3 Second Loops
-        // Color change and spin and go crazy
-        macro.addCommand(new LoopStart(7));
-        macro.addCommand(color1);
-        macro.addCommand(new Delay(1000));
-        macro.addCommand(color2);
-        macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 150, RawMotor.DriveMode.REVERSE, 150, 225));
-        macro.addCommand(new Delay(225));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.FORWARD, 150, 225));
-        macro.addCommand(new Delay(225));
-        macro.addCommand(color3);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 500));
-        macro.addCommand(new Delay(500));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stop(0));
-
-        //1.2 Seconds
-        // Color flashing, no movement
-        macro.addCommand(new LoopStart(8));
-        macro.addCommand(color1);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 100));
-        macro.addCommand(new Delay(100));
-        macro.addCommand(color2);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.REVERSE, 150, 100));
-        macro.addCommand(new Delay(100));
-        macro.addCommand(color3);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.REVERSE, 200, 100));
-        macro.addCommand(new Delay(100));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stop(0));
-
-        //Send the macro to the robot and play
-        macro.setMode(MacroObject.MacroObjectMode.Normal);
-        macro.setRobot(mRobot.getRobot());
-        macro.playMacro();
-    }
-
-    private void timeForYourCheckupDance() {
-        if (mRobot == null)
-            return;
-
-        setRobotToDefaultState();
-
-        macro = new MacroObject();
-
-        RGB color1 = new RGB(255, 28, 101, 0);
-        RGB color2 = new RGB(50, 23, 174, 0);
-        RGB color3 = new RGB(21, 150, 43, 0);
-        RGB color4 = new RGB(100, 100, 100, 0);
-
-        // Intro
-        macro.addCommand(color1);
-        macro.addCommand(new Delay(400));
-        macro.addCommand(color2);
-        macro.addCommand(new Delay(400));
-        macro.addCommand(color3);
-        macro.addCommand(new Delay(400));
-
-        // Main Loop
-        macro.addCommand(new LoopStart(6));
-        // Move 1
-        macro.addCommand(color1);
-        macro.addCommand(new Roll(0.3f, 0, 0));
-        macro.addCommand(new Delay(400));
-        macro.addCommand(new Roll(0.3f, 180, 0));
-        macro.addCommand(new Delay(400));
-        // Move 2
-        macro.addCommand(color2);
-        macro.addCommand(new RotateOverTime(720,800));
-        macro.addCommand(new Delay(800));
-        // Move 3
-        macro.addCommand(color3);
-        macro.addCommand(new Delay(300));
-        macro.addCommand(color1);
-        macro.addCommand(new Delay(200));
-        macro.addCommand(color3);
-        macro.addCommand(new Delay(300));
-        // Move 4
-        macro.addCommand(color4);
-        macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 200));
-        macro.addCommand(new Delay(200));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 200));
-        macro.addCommand(new Delay(200));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 200));
-        macro.addCommand(new Delay(200));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 200));
-        macro.addCommand(new Delay(200));
-        macro.addCommand(new Stabilization(true, 0));
-        macro.addCommand(new LoopEnd());
-
-        // Ending
-        macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new LoopStart(40));
-        macro.addCommand(color1);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(color2);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stabilization(true, 0));
-        macro.addCommand(new Roll(0.0f, 0, 0));
-
-        //Send the macro to the robot and play
-        macro.setMode(MacroObject.MacroObjectMode.Normal);
-        macro.setRobot(mRobot.getRobot());
-        macro.playMacro();
-    }
-
-    // TODO: Still a work in progress
-    private void itsyBitsySpiderDance() {
-        if (mRobot == null)
-            return;
-
-        setRobotToDefaultState();
-
-        macro = new MacroObject();
-
-        RGB color1 = new RGB(200, 0, 0, 0);
-        RGB color2 = new RGB(0, 200, 0, 0);
-        RGB color3 = new RGB(0, 0, 200, 0);
-
-        // 15 Seconds
-        // 5 x 3 Second Loops
-        // Color change and spin and go crazy
-        macro.addCommand(new LoopStart(4));
-        macro.addCommand(color1);
-        macro.addCommand(new Delay(1000));
-        macro.addCommand(color2);
-        macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 150, RawMotor.DriveMode.REVERSE, 150, 225));
-        macro.addCommand(new Delay(225));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.FORWARD, 150, 225));
-        macro.addCommand(new Delay(225));
-        macro.addCommand(color3);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 500));
-        macro.addCommand(new Delay(500));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stop(0));
-
-        // 1 Second
-        // Shaking and flashing
-        macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new LoopStart(50));
-        macro.addCommand(color1);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 255, RawMotor.DriveMode.REVERSE, 255, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(color2);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 255, RawMotor.DriveMode.FORWARD, 255, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stabilization(true, 0));
-
-        // 8 Seconds
-        // Rolling around, changing color
-        macro.addCommand(new LoopStart(8));
-        macro.addCommand(color1);
-        macro.addCommand(new Roll(0.25f, 0, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color2);
-        macro.addCommand(new Roll(0.25f, 270, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color3);
-        macro.addCommand(new Roll(0.25f, 180, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color1);
-        macro.addCommand(new Roll(0.25f, 90, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color2);
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Roll(0.25f, 180, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(new Stop(0));
-
-        //1.2 Seconds
-        // Color flashing, no movement
-        macro.addCommand(new LoopStart(8));
-        macro.addCommand(color1);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 100));
-        macro.addCommand(new Delay(100));
-        macro.addCommand(color2);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.REVERSE, 150, 100));
-        macro.addCommand(new Delay(100));
-        macro.addCommand(color3);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.REVERSE, 200, 100));
-        macro.addCommand(new Delay(100));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stop(0));
-
-        //Send the macro to the robot and play
-        macro.setMode(MacroObject.MacroObjectMode.Normal);
-        macro.setRobot(mRobot.getRobot());
-        macro.playMacro();
-    }
-
-    // TODO: Still a work in progress
-    private void headShouldersKneesToesDance() {
-        if (mRobot == null)
-            return;
-
-        setRobotToDefaultState();
-
-        macro = new MacroObject();
-
-        RGB color1 = new RGB(255, 255, 0, 0);
-        RGB color2 = new RGB(0, 255, 255, 0);
-        RGB color3 = new RGB(255, 0, 255, 0);
-
-        // 7 Seconds
-        // Rolling around, changing color
-        macro.addCommand(new LoopStart(7));
-        macro.addCommand(color1);
-        macro.addCommand(new Roll(0.25f, 0, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color2);
-        macro.addCommand(new Roll(0.25f, 270, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color3);
-        macro.addCommand(new Roll(0.25f, 180, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color1);
-        macro.addCommand(new Roll(0.25f, 90, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(color2);
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Roll(0.25f, 180, 0));
-        macro.addCommand(new Delay(250));
-        macro.addCommand(new Stop(0));
-
-        // 2 Seconds
-        // Shaking and flashing
-        macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new LoopStart(100));
-        macro.addCommand(color1);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 255, RawMotor.DriveMode.REVERSE, 255, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(color2);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 255, RawMotor.DriveMode.FORWARD, 255, 10));
-        macro.addCommand(new Delay(10));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stabilization(true, 0));
-
-        // 9 Seconds
-        // 3 x 3 Second Loops
-        // Color change and spin and go crazy
-        macro.addCommand(new LoopStart(2));
-        macro.addCommand(color1);
-        macro.addCommand(new Delay(1000));
-        macro.addCommand(color2);
-        macro.addCommand(new Stabilization(false, 0));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 150, RawMotor.DriveMode.REVERSE, 150, 225));
-        macro.addCommand(new Delay(225));
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.FORWARD, 150, 225));
-        macro.addCommand(new Delay(225));
-        macro.addCommand(color3);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 500));
-        macro.addCommand(new Delay(500));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stop(0));
-
-        //1.2 Seconds
-        // Color flashing, no movement
-        macro.addCommand(new LoopStart(8));
-        macro.addCommand(color1);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 100));
-        macro.addCommand(new Delay(100));
-        macro.addCommand(color2);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.REVERSE, 150, 100));
-        macro.addCommand(new Delay(100));
-        macro.addCommand(color3);
-        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.REVERSE, 200, 100));
-        macro.addCommand(new Delay(100));
-        macro.addCommand(new LoopEnd());
-        macro.addCommand(new Stop(0));
-
-        //Send the macro to the robot and play
-        macro.setMode(MacroObject.MacroObjectMode.Normal);
-        macro.setRobot(mRobot.getRobot());
-        macro.playMacro();
-    }
 
     private void spin()
     {
@@ -593,22 +232,6 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             }
         });
 
-        Button alignButton = (Button) findViewById(R.id.align_button);
-        alignButton.setOnClickListener( new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleAlignMode();
-            }
-        });
-
-        Button ledToggleButton = (Button) findViewById(R.id.back_led_toggle);
-        ledToggleButton.setOnClickListener( new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleBackLED();
-            }
-        });
-
         Button spinButton = (Button) findViewById(R.id.spin_button);
         spinButton.setOnClickListener( new OnClickListener() {
             @Override
@@ -618,8 +241,6 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         });
 
         runMacroButton.setEnabled(false);
-        ledToggleButton.setEnabled(false);
-        alignButton.setEnabled(false);
         spinButton.setEnabled(false);
 
         ImageButton playCheckup = (ImageButton) findViewById(R.id.play_checkup);
@@ -635,6 +256,14 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             @Override
             public void onClick(View v) {
                 playDanielTiger();
+            }
+        });
+
+        ImageButton playSesame = (ImageButton) findViewById(R.id.play_sesame);
+        playSesame.setOnClickListener( new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playSesameStreet();
             }
         });
 
@@ -656,30 +285,22 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
     }
 
     private void recordClick(String buttonName) {
-        switch (buttonName) {
-            case "daniel":
-                danielClicks++;
-                docClicks = 0;
-                headClicks = 0;
-                spiderClicks = 0;
-                break;
-            case "doc":
-                docClicks++;
-                danielClicks = 0;
-                headClicks = 0;
-                spiderClicks = 0;
-                break;
-            case "head":
-                headClicks++;
-                docClicks = 0;
-                danielClicks = 0;
-                spiderClicks = 0;
-                break;
-            case "spider":
-                spiderClicks++;
-                danielClicks = 0;
-                docClicks = 0;
-                headClicks = 0;
+        boolean keyFound = false;
+        for (String key : clicks.keySet()) {
+            if (key.equals(buttonName))
+            {
+                clicks.put(key, clicks.get(key) + 1);
+                keyFound = true;
+            }
+            else
+            {
+                clicks.put(key, 0);
+            }
+        }
+
+        if (!keyFound)
+        {
+            clicks.put(buttonName, 0);
         }
     }
 
@@ -710,74 +331,56 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         }
     }
 
-    private void playDanielTiger() {
+    private void playSong(String song, int resid) {
         if (mp == null || !mp.isPlaying()) {
-            mp = MediaPlayer.create(getApplicationContext(), R.raw.daniel_tiger_theme);
+            mp = MediaPlayer.create(getApplicationContext(), resid);
             mp.start();
             if (mRobot != null && mRobot.isConnected()) {
-                danielTigerDance();
+                switch (song) {
+                    case "doc":
+                        Dances.timeForYourCheckupDance(mRobot);
+                        break;
+                    case "daniel":
+                        Dances.danielTigerDance(mRobot);
+                        break;
+                    case "sesame":
+                        Dances.sesameStreetDance(mRobot);
+                        break;
+                    case "spider":
+                        Dances.itsyBitsySpiderDance(mRobot);
+                        break;
+                    case "head":
+                        Dances.headShouldersKneesToesDance(mRobot);
+                        break;
+                }
             }
-            hasPlayed = true;
-        } else if (danielClicks >= CLICKSTOSTOP){
+        } else if (clicks.containsKey(song) && clicks.get(song) >= CLICKSTOSTOP){
             setRobotToDefaultState();
             mp.stop();
-            danielClicks = 0;
+            clicks.put(song, 0);
         } else {
-            recordClick("daniel");
+            recordClick(song);
         }
+    }
 
+    private void playDanielTiger() {
+        playSong("daniel", R.raw.daniel_tiger_theme);
     }
 
     private void playTimeForYourCheckup() {
-        if (mp == null || !mp.isPlaying()) {
-            mp = MediaPlayer.create(getApplicationContext(), R.raw.time_for_your_checkup);
-            mp.start();
-            hasPlayed = true;
-            if (mRobot != null && mRobot.isConnected()) {
-                //danielTigerDance();
-                timeForYourCheckupDance();
-            }
-        } else if (docClicks >= CLICKSTOSTOP){
-            setRobotToDefaultState();
-            mp.stop();
-            docClicks = 0;
-        } else {
-            recordClick("doc");
-        }
+        playSong("doc", R.raw.time_for_your_checkup);
+    }
+
+    private void playSesameStreet() {
+        playSong("sesame", R.raw.seasame_street_theme);
     }
 
     private void playItsyBitsySpider() {
-        if (mp == null || !mp.isPlaying()) {
-            mp = MediaPlayer.create(getApplicationContext(), R.raw.itsy_bitsy_spider);
-            mp.start();
-            hasPlayed = true;
-            if (mRobot != null && mRobot.isConnected()) {
-                itsyBitsySpiderDance();
-            }
-        } else if (spiderClicks >= CLICKSTOSTOP){
-            setRobotToDefaultState();
-            mp.stop();
-            spiderClicks = 0;
-        } else {
-            recordClick("spider");
-        }
+        playSong("spider", R.raw.itsy_bitsy_spider);
     }
 
     private void playHeadShouldersKneesToes() {
-        if (mp == null || !mp.isPlaying()) {
-            mp = MediaPlayer.create(getApplicationContext(), R.raw.head_shoulders_knees_toes);
-            mp.start();
-            hasPlayed = true;
-            if (mRobot != null && mRobot.isConnected()) {
-                headShouldersKneesToesDance();
-            }
-        } else if (headClicks >= CLICKSTOSTOP){
-            setRobotToDefaultState();
-            mp.stop();
-            headClicks = 0;
-        } else {
-            recordClick("head");
-        }
+        playSong("head", R.raw.head_shoulders_knees_toes);
     }
 
 }
