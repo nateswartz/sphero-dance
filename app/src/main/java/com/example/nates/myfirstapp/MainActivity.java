@@ -3,34 +3,25 @@ package com.example.nates.myfirstapp;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.content.res.AssetFileDescriptor;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.bluetooth.BluetoothAdapter;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Button;
-import android.view.View.OnClickListener;
-import android.view.View;
-import android.media.MediaPlayer;
 
 import com.orbotix.ConvenienceRobot;
 import com.orbotix.DualStackDiscoveryAgent;
+import com.orbotix.command.AbortMacroCommand;
 import com.orbotix.common.DiscoveryException;
 import com.orbotix.common.Robot;
 import com.orbotix.common.RobotChangedStateListener;
 import com.orbotix.le.RobotLE;
-import com.orbotix.macro.cmd.GoTo;
-import com.orbotix.macro.cmd.RawMotor;
-import com.orbotix.command.AbortMacroCommand;
-
 import com.orbotix.macro.MacroObject;
-import com.orbotix.macro.MacroObject.OnMacroUploadedListener;
-import com.orbotix.macro.cmd.BackLED;
 import com.orbotix.macro.cmd.Delay;
-import com.orbotix.macro.cmd.Fade;
 import com.orbotix.macro.cmd.LoopEnd;
 import com.orbotix.macro.cmd.LoopStart;
 import com.orbotix.macro.cmd.RGB;
@@ -39,13 +30,6 @@ import com.orbotix.macro.cmd.Roll;
 import com.orbotix.macro.cmd.RotateOverTime;
 import com.orbotix.macro.cmd.Stabilization;
 import com.orbotix.macro.cmd.Stop;
-
-import java.io.FileDescriptor;
-import java.io.IOException;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Hello World Sample
@@ -400,6 +384,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         macro.playMacro();
     }
 
+    // TODO: Still a work in progress
     private void itsyBitsySpiderDance() {
         if (mRobot == null)
             return;
@@ -408,17 +393,76 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
 
         macro = new MacroObject();
 
-        RGB color1 = new RGB(255, 28, 101, 0);
-        RGB color2 = new RGB(50, 23, 174, 0);
-        RGB color3 = new RGB(21, 150, 43, 0);
+        RGB color1 = new RGB(200, 0, 0, 0);
+        RGB color2 = new RGB(0, 200, 0, 0);
+        RGB color3 = new RGB(0, 0, 200, 0);
 
-
+        // 15 Seconds
+        // 5 x 3 Second Loops
+        // Color change and spin and go crazy
         macro.addCommand(new LoopStart(4));
         macro.addCommand(color1);
         macro.addCommand(new Delay(1000));
         macro.addCommand(color2);
-        macro.addCommand(new Delay(1000));
+        macro.addCommand(new Stabilization(false, 0));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 150, RawMotor.DriveMode.REVERSE, 150, 225));
+        macro.addCommand(new Delay(225));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.FORWARD, 150, 225));
+        macro.addCommand(new Delay(225));
+        macro.addCommand(color3);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 500));
+        macro.addCommand(new Delay(500));
         macro.addCommand(new LoopEnd());
+        macro.addCommand(new Stop(0));
+
+        // 1 Second
+        // Shaking and flashing
+        macro.addCommand(new Stabilization(false, 0));
+        macro.addCommand(new LoopStart(50));
+        macro.addCommand(color1);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 255, RawMotor.DriveMode.REVERSE, 255, 10));
+        macro.addCommand(new Delay(10));
+        macro.addCommand(color2);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 255, RawMotor.DriveMode.FORWARD, 255, 10));
+        macro.addCommand(new Delay(10));
+        macro.addCommand(new LoopEnd());
+        macro.addCommand(new Stabilization(true, 0));
+
+        // 8 Seconds
+        // Rolling around, changing color
+        macro.addCommand(new LoopStart(8));
+        macro.addCommand(color1);
+        macro.addCommand(new Roll(0.25f, 0, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(color2);
+        macro.addCommand(new Roll(0.25f, 270, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(color3);
+        macro.addCommand(new Roll(0.25f, 180, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(color1);
+        macro.addCommand(new Roll(0.25f, 90, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(color2);
+        macro.addCommand(new LoopEnd());
+        macro.addCommand(new Roll(0.25f, 180, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(new Stop(0));
+
+        //1.2 Seconds
+        // Color flashing, no movement
+        macro.addCommand(new LoopStart(8));
+        macro.addCommand(color1);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 100));
+        macro.addCommand(new Delay(100));
+        macro.addCommand(color2);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.REVERSE, 150, 100));
+        macro.addCommand(new Delay(100));
+        macro.addCommand(color3);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.REVERSE, 200, 100));
+        macro.addCommand(new Delay(100));
+        macro.addCommand(new LoopEnd());
+        macro.addCommand(new Stop(0));
 
         //Send the macro to the robot and play
         macro.setMode(MacroObject.MacroObjectMode.Normal);
@@ -426,7 +470,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         macro.playMacro();
     }
 
-
+    // TODO: Still a work in progress
     private void headShouldersKneesToesDance() {
         if (mRobot == null)
             return;
@@ -435,17 +479,76 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
 
         macro = new MacroObject();
 
-        RGB color1 = new RGB(255, 28, 101, 0);
-        RGB color2 = new RGB(50, 23, 174, 0);
-        RGB color3 = new RGB(21, 150, 43, 0);
+        RGB color1 = new RGB(255, 255, 0, 0);
+        RGB color2 = new RGB(0, 255, 255, 0);
+        RGB color3 = new RGB(255, 0, 255, 0);
 
+        // 7 Seconds
+        // Rolling around, changing color
+        macro.addCommand(new LoopStart(7));
+        macro.addCommand(color1);
+        macro.addCommand(new Roll(0.25f, 0, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(color2);
+        macro.addCommand(new Roll(0.25f, 270, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(color3);
+        macro.addCommand(new Roll(0.25f, 180, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(color1);
+        macro.addCommand(new Roll(0.25f, 90, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(color2);
+        macro.addCommand(new LoopEnd());
+        macro.addCommand(new Roll(0.25f, 180, 0));
+        macro.addCommand(new Delay(250));
+        macro.addCommand(new Stop(0));
 
-        macro.addCommand(new LoopStart(4));
+        // 2 Seconds
+        // Shaking and flashing
+        macro.addCommand(new Stabilization(false, 0));
+        macro.addCommand(new LoopStart(100));
+        macro.addCommand(color1);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 255, RawMotor.DriveMode.REVERSE, 255, 10));
+        macro.addCommand(new Delay(10));
+        macro.addCommand(color2);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 255, RawMotor.DriveMode.FORWARD, 255, 10));
+        macro.addCommand(new Delay(10));
+        macro.addCommand(new LoopEnd());
+        macro.addCommand(new Stabilization(true, 0));
+
+        // 9 Seconds
+        // 3 x 3 Second Loops
+        // Color change and spin and go crazy
+        macro.addCommand(new LoopStart(2));
         macro.addCommand(color1);
         macro.addCommand(new Delay(1000));
         macro.addCommand(color2);
-        macro.addCommand(new Delay(1000));
+        macro.addCommand(new Stabilization(false, 0));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 150, RawMotor.DriveMode.REVERSE, 150, 225));
+        macro.addCommand(new Delay(225));
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.FORWARD, 150, 225));
+        macro.addCommand(new Delay(225));
+        macro.addCommand(color3);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 500));
+        macro.addCommand(new Delay(500));
         macro.addCommand(new LoopEnd());
+        macro.addCommand(new Stop(0));
+
+        //1.2 Seconds
+        // Color flashing, no movement
+        macro.addCommand(new LoopStart(8));
+        macro.addCommand(color1);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 100));
+        macro.addCommand(new Delay(100));
+        macro.addCommand(color2);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.REVERSE, 150, 100));
+        macro.addCommand(new Delay(100));
+        macro.addCommand(color3);
+        macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.REVERSE, 200, 100));
+        macro.addCommand(new Delay(100));
+        macro.addCommand(new LoopEnd());
+        macro.addCommand(new Stop(0));
 
         //Send the macro to the robot and play
         macro.setMode(MacroObject.MacroObjectMode.Normal);
@@ -649,8 +752,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             mp.start();
             hasPlayed = true;
             if (mRobot != null && mRobot.isConnected()) {
-                danielTigerDance();
-                //itsyBitsySpiderDance();
+                itsyBitsySpiderDance();
             }
         } else if (spiderClicks >= CLICKSTOSTOP){
             setRobotToDefaultState();
@@ -667,8 +769,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             mp.start();
             hasPlayed = true;
             if (mRobot != null && mRobot.isConnected()) {
-                danielTigerDance();
-                //headShouldersKneesToesDance();
+                headShouldersKneesToesDance();
             }
         } else if (headClicks >= CLICKSTOSTOP){
             setRobotToDefaultState();
