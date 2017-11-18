@@ -146,20 +146,16 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
                 mRobot = new ConvenienceRobot(robot);
 
                 Button runMacroButton = (Button) findViewById(R.id.run_macro);
-                Button ledToggleButton = (Button) findViewById(R.id.back_led_toggle);
                 Button spinButton = (Button) findViewById(R.id.spin_button);
                 runMacroButton.setEnabled(true);
-                ledToggleButton.setEnabled(true);
                 spinButton.setEnabled(true);
 
                 break;
             }
             case Offline: {
                 Button runMacroButton = (Button) findViewById(R.id.run_macro);
-                Button ledToggleButton = (Button) findViewById(R.id.back_led_toggle);
                 Button spinButton = (Button) findViewById(R.id.spin_button);
                 runMacroButton.setEnabled(false);
-                ledToggleButton.setEnabled(false);
                 spinButton.setEnabled(false);
             }
         }
@@ -217,7 +213,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             return;
 
         mRobot.sendCommand(new AbortMacroCommand());
-        mRobot.setLed(1.0f, 1.0f, 1.0f);
+        mRobot.setLed(0.5f, 0.5f, 0.5f);
         mRobot.enableStabilization(true);
         mRobot.setBackLedBrightness(0.0f);
         mRobot.stop();

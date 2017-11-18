@@ -449,7 +449,7 @@ public final class Dances {
             return;
 
         robot.sendCommand(new AbortMacroCommand());
-        robot.setLed(1.0f, 1.0f, 1.0f);
+        robot.setLed(0.5f, 0.5f, 0.5f);
         robot.enableStabilization(true);
         robot.setBackLedBrightness(0.0f);
         robot.stop();
