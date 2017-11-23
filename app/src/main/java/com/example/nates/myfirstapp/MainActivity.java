@@ -20,12 +20,6 @@ import com.orbotix.common.DiscoveryException;
 import com.orbotix.common.Robot;
 import com.orbotix.common.RobotChangedStateListener;
 import com.orbotix.le.RobotLE;
-import com.orbotix.macro.MacroObject;
-import com.orbotix.macro.cmd.Delay;
-import com.orbotix.macro.cmd.LoopEnd;
-import com.orbotix.macro.cmd.LoopStart;
-import com.orbotix.macro.cmd.RawMotor;
-import com.orbotix.macro.cmd.Stabilization;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +27,7 @@ import java.util.Map;
 
 public class MainActivity extends Activity implements RobotChangedStateListener {
 
+    private RobotActions mRobotActions;
     private ConvenienceRobot mRobot;
     private DualStackDiscoveryAgent mDiscoveryAgent;
     private boolean isBackLedOn = false;
@@ -40,9 +35,6 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
     private MediaPlayer mp;
     private final int CLICKSTOSTOP = 2;
     private boolean isAligning = false;
-    private boolean isSpinning = false;
-    private boolean isRunningMacro = false;
-    MacroObject macro;
 
     private static final int REQUEST_CODE_LOCATION_PERMISSION = 42;
 
@@ -121,7 +113,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        setRobotToDefaultState();
+        mRobotActions.setRobotToDefaultState();
         mDiscoveryAgent.addRobotStateListener(null);
         if (mp.isPlaying()) {
             mp.stop();
@@ -144,6 +136,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
 
                 //Save the robot as a ConvenienceRobot for additional utility methods
                 mRobot = new ConvenienceRobot(robot);
+                mRobotActions = new RobotActions(mRobot);
 
                 Button runMacroButton = (Button) findViewById(R.id.run_macro);
                 Button spinButton = (Button) findViewById(R.id.spin_button);
@@ -161,70 +154,12 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         }
     }
 
-    private void runMacro() {
-        if (mRobot == null)
-            return;
-
-        setRobotToDefaultState();
-
-        if (!isRunningMacro) {
-            isRunningMacro = true;
-            macro = new MacroObject();
-
-
-            macro.addCommand(new Stabilization(false, 0));
-            macro.addCommand(new LoopStart(500));
-            macro.addCommand(new RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10));
-            macro.addCommand(new Delay(10));
-            macro.addCommand(new RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10));
-            macro.addCommand(new Delay(10));
-            macro.addCommand(new LoopEnd());
-            macro.addCommand(new Stabilization(true, 0));
-
-            //Send the macro to the robot and play
-            macro.setMode(MacroObject.MacroObjectMode.Normal);
-            macro.setRobot(mRobot.getRobot());
-            macro.playMacro();
-        } else {
-            isRunningMacro = false;
-        }
-    }
-
-
-    private void spin()
-    {
-        if (mRobot == null)
-            return;
-
-        setRobotToDefaultState();
-
-        if (!isSpinning) {
-            mRobot.setRawMotors(RawMotor.DriveMode.REVERSE.ordinal(), 255, RawMotor.DriveMode.FORWARD.ordinal(), 255);
-            isSpinning = true;
-        }
-        else {
-            isSpinning = false;
-        }
-    }
-
-    //Set the robot to a default 'clean' state between running macros
-    private void setRobotToDefaultState() {
-        if (mRobot == null)
-            return;
-
-        mRobot.sendCommand(new AbortMacroCommand());
-        mRobot.setLed(0.5f, 0.5f, 0.5f);
-        mRobot.enableStabilization(true);
-        mRobot.setBackLedBrightness(0.0f);
-        mRobot.stop();
-    }
-
     private void setupButtons() {
         Button runMacroButton = (Button) findViewById(R.id.run_macro);
         runMacroButton.setOnClickListener( new OnClickListener() {
             @Override
             public void onClick(View v) {
-                runMacro();
+                mRobotActions.runMacro();
             }
         });
 
@@ -232,7 +167,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         spinButton.setOnClickListener( new OnClickListener() {
             @Override
             public void onClick(View v) {
-                spin();
+                mRobotActions.spin();
             }
         });
 
@@ -351,7 +286,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
                 }
             }
         } else if (clicks.containsKey(song) && clicks.get(song) >= CLICKSTOSTOP){
-            setRobotToDefaultState();
+            mRobotActions.setRobotToDefaultState();
             mp.stop();
             clicks.put(song, 0);
         } else {
