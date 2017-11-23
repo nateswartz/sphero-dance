@@ -13,51 +13,66 @@
         android:layout_weight="0.25"
         android:gravity="center" />
 
-    <ImageButton
-        android:id="@+id/play_checkup"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="1dp"
-        android:layout_weight="3"
-        android:background="#1a8e1a"
-        android:elevation="0dp"
-        android:src="@drawable/docmcstuffins" />
+        android:layout_weight="12"
+        android:orientation="vertical">
 
-    <ImageButton
-        android:id="@+id/play_daniel"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="1dp"
-        android:layout_weight="3"
-        android:background="#01AAEB"
-        android:src="@drawable/daniel_tiger" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <ImageButton
-        android:id="@+id/play_sesame"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="1dp"
-        android:layout_weight="3"
-        android:background="#fff000"
-        android:src="@drawable/sesame_street" />
+            <ImageButton
+                android:id="@+id/play_checkup"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="3"
+                android:background="#1a8e1a"
+                android:elevation="0dp"
+                android:src="@drawable/docmcstuffins" />
 
-    <ImageButton
-        android:id="@+id/play_head"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="1dp"
-        android:layout_weight="3"
-        android:background="#5d1a5f"
-        android:src="@drawable/head_shoulders_knees_toes" />
+            <ImageButton
+                android:id="@+id/play_daniel"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="3"
+                android:background="#01AAEB"
+                android:src="@drawable/daniel_tiger" />
 
-    <ImageButton
-        android:id="@+id/play_spider"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="1dp"
-        android:layout_weight="3"
-        android:background="#dc6d0c"
-        android:src="@drawable/itsybitsyspider" />
+            <ImageButton
+                android:id="@+id/play_sesame"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="3"
+                android:background="#fff000"
+                android:src="@drawable/sesame_street" />
+
+            <ImageButton
+                android:id="@+id/play_head"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="3"
+                android:background="#5d1a5f"
+                android:src="@drawable/head_shoulders_knees_toes" />
+
+            <ImageButton
+                android:id="@+id/play_spider"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="3"
+                android:background="#dc6d0c"
+                android:src="@drawable/itsybitsyspider" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
     <GridLayout
         android:layout_width="match_parent"
