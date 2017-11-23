@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.orbotix.ConvenienceRobot;
 import com.orbotix.DualStackDiscoveryAgent;
-import com.orbotix.command.AbortMacroCommand;
 import com.orbotix.common.DiscoveryException;
 import com.orbotix.common.Robot;
 import com.orbotix.common.RobotChangedStateListener;
@@ -28,13 +27,12 @@ import java.util.Map;
 public class MainActivity extends Activity implements RobotChangedStateListener {
 
     private RobotActions mRobotActions;
+    private RobotDances mRobotDances;
     private ConvenienceRobot mRobot;
     private DualStackDiscoveryAgent mDiscoveryAgent;
-    private boolean isBackLedOn = false;
     private Map<String, Integer> clicks = new HashMap<>();
     private MediaPlayer mp;
     private final int CLICKSTOSTOP = 2;
-    private boolean isAligning = false;
 
     private static final int REQUEST_CODE_LOCATION_PERMISSION = 42;
 
@@ -137,6 +135,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
                 //Save the robot as a ConvenienceRobot for additional utility methods
                 mRobot = new ConvenienceRobot(robot);
                 mRobotActions = new RobotActions(mRobot);
+                mRobotDances = new RobotDances(mRobot);
 
                 Button runMacroButton = (Button) findViewById(R.id.run_macro);
                 Button spinButton = (Button) findViewById(R.id.spin_button);
@@ -178,7 +177,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         playCheckup.setOnClickListener( new OnClickListener() {
             @Override
             public void onClick(View v) {
-                playTimeForYourCheckup();
+                triggerTimeForYourCheckup();
             }
         });
 
@@ -186,7 +185,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         playDaniel.setOnClickListener( new OnClickListener() {
             @Override
             public void onClick(View v) {
-                playDanielTiger();
+                triggerDanielTiger();
             }
         });
 
@@ -194,7 +193,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         playSesame.setOnClickListener( new OnClickListener() {
             @Override
             public void onClick(View v) {
-                playSesameStreet();
+                triggerSesameStreet();
             }
         });
 
@@ -202,7 +201,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         playSpider.setOnClickListener( new OnClickListener() {
             @Override
             public void onClick(View v) {
-                playItsyBitsySpider();
+                triggerItsyBitsySpider();
             }
         });
 
@@ -210,7 +209,7 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         playHead.setOnClickListener( new OnClickListener() {
             @Override
             public void onClick(View v) {
-                playHeadShouldersKneesToes();
+                triggerHeadShouldersKneesToes();
             }
         });
     }
@@ -235,53 +234,27 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         }
     }
 
-    private void toggleBackLED() {
-        if (isBackLedOn) {
-            mRobot.setBackLedBrightness(0.0f);
-            isBackLedOn = false;
-        } else {
-            mRobot.setBackLedBrightness(1.0f);
-            isBackLedOn = true;
-        }
-    }
-
-    private void toggleAlignMode() {
-        if (mRobot == null)
-            return;
-
-        if (isAligning) {
-            isAligning = false;
-            mRobot.setZeroHeading();
-            mRobot.setBackLedBrightness(0.0f);
-            mRobot.enableStabilization(true);
-        }
-        else {
-            isAligning = true;
-            mRobot.setBackLedBrightness(1.0f);
-            mRobot.enableStabilization(false);
-        }
-    }
-
-    private void playSong(String song, int resid) {
+    private void triggerSong(String song, int resid) {
         if (mp == null || !mp.isPlaying()) {
             mp = MediaPlayer.create(getApplicationContext(), resid);
             mp.start();
             if (mRobot != null && mRobot.isConnected()) {
+                mRobotActions.setRobotToDefaultState();
                 switch (song) {
                     case "doc":
-                        Dances.timeForYourCheckupDance(mRobot);
+                        mRobotDances.timeForYourCheckupDance();
                         break;
                     case "daniel":
-                        Dances.danielTigerDance(mRobot);
+                        mRobotDances.danielTigerDance();
                         break;
                     case "sesame":
-                        Dances.sesameStreetDance(mRobot);
+                        mRobotDances.sesameStreetDance();
                         break;
                     case "spider":
-                        Dances.itsyBitsySpiderDance(mRobot);
+                        mRobotDances.itsyBitsySpiderDance();
                         break;
                     case "head":
-                        Dances.headShouldersKneesToesDance(mRobot);
+                        mRobotDances.headShouldersKneesToesDance();
                         break;
                 }
             }
@@ -294,24 +267,24 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
         }
     }
 
-    private void playDanielTiger() {
-        playSong("daniel", R.raw.daniel_tiger_theme);
+    private void triggerDanielTiger() {
+        triggerSong("daniel", R.raw.daniel_tiger_theme);
     }
 
-    private void playTimeForYourCheckup() {
-        playSong("doc", R.raw.time_for_your_checkup);
+    private void triggerTimeForYourCheckup() {
+        triggerSong("doc", R.raw.time_for_your_checkup);
     }
 
-    private void playSesameStreet() {
-        playSong("sesame", R.raw.seasame_street_theme);
+    private void triggerSesameStreet() {
+        triggerSong("sesame", R.raw.seasame_street_theme);
     }
 
-    private void playItsyBitsySpider() {
-        playSong("spider", R.raw.itsy_bitsy_spider);
+    private void triggerItsyBitsySpider() {
+        triggerSong("spider", R.raw.itsy_bitsy_spider);
     }
 
-    private void playHeadShouldersKneesToes() {
-        playSong("head", R.raw.head_shoulders_knees_toes);
+    private void triggerHeadShouldersKneesToes() {
+        triggerSong("head", R.raw.head_shoulders_knees_toes);
     }
 
 }
