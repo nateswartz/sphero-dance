@@ -197,6 +197,14 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
             }
         });
 
+        ImageButton playElmo = (ImageButton) findViewById(R.id.play_elmo);
+        playSesame.setOnClickListener( new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                triggerElmosSong();
+            }
+        });
+
         ImageButton playSpider = (ImageButton) findViewById(R.id.play_spider);
         playSpider.setOnClickListener( new OnClickListener() {
             @Override
@@ -250,6 +258,9 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
                     case "sesame":
                         mRobotDances.sesameStreetDance();
                         break;
+                    case "elmo":
+                        mRobotDances.elmosSongDance();
+                        break;
                     case "spider":
                         mRobotDances.itsyBitsySpiderDance();
                         break;
@@ -277,6 +288,10 @@ public class MainActivity extends Activity implements RobotChangedStateListener 
 
     private void triggerSesameStreet() {
         triggerSong("sesame", R.raw.seasame_street_theme);
+    }
+
+    private void triggerElmosSong() {
+        triggerSong("elmo", R.raw.elmos_song);
     }
 
     private void triggerItsyBitsySpider() {

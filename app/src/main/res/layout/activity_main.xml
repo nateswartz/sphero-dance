@@ -53,6 +53,15 @@
                 android:src="@drawable/sesame_street" />
 
             <ImageButton
+                android:id="@+id/play_elmo"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="3"
+                android:background="#ff00ff"
+                android:src="@drawable/elmos_song" />
+
+            <ImageButton
                 android:id="@+id/play_head"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

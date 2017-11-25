@@ -346,9 +346,9 @@ class RobotDances(robot: ConvenienceRobot) {
         val color2 = RGB(100, 50, 240, 0)
         val color3 = RGB(145, 33, 255, 0)
 
-        // 9 Seconds
+        // 15 Seconds
         // Rolling around, changing color
-        macro.addCommand(LoopStart(9))
+        macro.addCommand(LoopStart(15))
         macro.addCommand(color1)
         macro.addCommand(Roll(0.25f, 0, 0))
         macro.addCommand(Delay(250))
@@ -367,10 +367,10 @@ class RobotDances(robot: ConvenienceRobot) {
         macro.addCommand(Delay(250))
         macro.addCommand(Stop(0))
 
-        // 21 Seconds
-        // 7 x 3 Second Loops
+        // 22 Seconds
+        // 11 x 2 Second Loops
         // Color change and spin and go crazy
-        macro.addCommand(LoopStart(6))
+        macro.addCommand(LoopStart(11))
         macro.addCommand(color1)
         macro.addCommand(Delay(1000))
         macro.addCommand(color2)
@@ -412,6 +412,90 @@ class RobotDances(robot: ConvenienceRobot) {
         macro.addCommand(Delay(100))
         macro.addCommand(LoopEnd())
         macro.addCommand(Stop(0))
+
+        //Send the macro to the robot and play
+        macro.mode = MacroObject.MacroObjectMode.Normal
+        macro.setRobot(mRobot.robot)
+        macro.playMacro()
+    }
+
+    // TODO: Still a work in progress
+    fun elmosSongDance() {
+        if (mRobot == null)
+            return
+
+        val macro = MacroObject()
+
+        val color1 = RGB(255, 0, 0, 0)
+        val color2 = RGB(175, 0, 0, 0)
+        val color3 = RGB(50, 20, 20, 0)
+
+        // 22 Seconds
+        // 11 x 2 Second Loops
+        // Color change and spin and go crazy
+        macro.addCommand(LoopStart(11))
+        macro.addCommand(color1)
+        macro.addCommand(Delay(1000))
+        macro.addCommand(color2)
+        macro.addCommand(Stabilization(false, 0))
+        macro.addCommand(RawMotor(RawMotor.DriveMode.REVERSE, 150, RawMotor.DriveMode.REVERSE, 150, 225))
+        macro.addCommand(Delay(225))
+        macro.addCommand(RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.FORWARD, 150, 225))
+        macro.addCommand(Delay(225))
+        macro.addCommand(color3)
+        macro.addCommand(RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 500))
+        macro.addCommand(Delay(500))
+        macro.addCommand(LoopEnd())
+        macro.addCommand(Stop(0))
+
+        //1.6 Seconds
+        // Color flashing, no movement
+        macro.addCommand(LoopStart(10))
+        macro.addCommand(color1)
+        macro.addCommand(RawMotor(RawMotor.DriveMode.FORWARD, 100, RawMotor.DriveMode.REVERSE, 100, 100))
+        macro.addCommand(Delay(100))
+        macro.addCommand(color2)
+        macro.addCommand(RawMotor(RawMotor.DriveMode.FORWARD, 150, RawMotor.DriveMode.REVERSE, 150, 100))
+        macro.addCommand(Delay(100))
+        macro.addCommand(color3)
+        macro.addCommand(RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.REVERSE, 200, 100))
+        macro.addCommand(Delay(100))
+        macro.addCommand(LoopEnd())
+        macro.addCommand(Stop(0))
+
+        // 15 Seconds
+        // Rolling around, changing color
+        macro.addCommand(LoopStart(15))
+        macro.addCommand(color1)
+        macro.addCommand(Roll(0.25f, 0, 0))
+        macro.addCommand(Delay(250))
+        macro.addCommand(color2)
+        macro.addCommand(Roll(0.25f, 270, 0))
+        macro.addCommand(Delay(250))
+        macro.addCommand(color3)
+        macro.addCommand(Roll(0.25f, 180, 0))
+        macro.addCommand(Delay(250))
+        macro.addCommand(color1)
+        macro.addCommand(Roll(0.25f, 90, 0))
+        macro.addCommand(Delay(250))
+        macro.addCommand(color2)
+        macro.addCommand(LoopEnd())
+        macro.addCommand(Roll(0.25f, 180, 0))
+        macro.addCommand(Delay(250))
+        macro.addCommand(Stop(0))
+
+        // 2 Seconds
+        // Shaking and flashing
+        macro.addCommand(Stabilization(false, 0))
+        macro.addCommand(LoopStart(100))
+        macro.addCommand(color1)
+        macro.addCommand(RawMotor(RawMotor.DriveMode.REVERSE, 255, RawMotor.DriveMode.REVERSE, 255, 10))
+        macro.addCommand(Delay(10))
+        macro.addCommand(color2)
+        macro.addCommand(RawMotor(RawMotor.DriveMode.FORWARD, 255, RawMotor.DriveMode.FORWARD, 255, 10))
+        macro.addCommand(Delay(10))
+        macro.addCommand(LoopEnd())
+        macro.addCommand(Stabilization(true, 0))
 
         //Send the macro to the robot and play
         macro.mode = MacroObject.MacroObjectMode.Normal
