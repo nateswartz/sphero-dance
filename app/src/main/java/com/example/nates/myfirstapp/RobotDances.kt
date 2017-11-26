@@ -7,20 +7,14 @@ import com.orbotix.macro.cmd.*
 /**
  * Created by nates on 11/23/2017.
  */
-class RobotDances(robot: ConvenienceRobot) {
+class RobotDances() {
 
-    private var mRobot = robot;
-
-    fun danielTigerDance() {
-        if (mRobot == null)
-            return
-
+    fun danielTigerDance() : MacroObject {
         val macro = MacroObject()
 
         val color1 = RGB(255, 152, 0, 0)
         val color2 = RGB(50, 23, 174, 0)
         val color3 = RGB(224, 10, 12, 0)
-
 
         // 1 Second
         // Shaking and flashing
@@ -91,15 +85,11 @@ class RobotDances(robot: ConvenienceRobot) {
 
         //Send the macro to the robot and play
         macro.mode = MacroObject.MacroObjectMode.Normal
-        macro.setRobot(mRobot.robot)
-        macro.playMacro()
+        return macro
     }
 
 
-    fun timeForYourCheckupDance() {
-        if (mRobot == null)
-            return
-
+    fun timeForYourCheckupDance() : MacroObject {
         val macro = MacroObject()
 
         val color1 = RGB(255, 28, 101, 0)
@@ -163,15 +153,11 @@ class RobotDances(robot: ConvenienceRobot) {
 
         //Send the macro to the robot and play
         macro.mode = MacroObject.MacroObjectMode.Normal
-        macro.setRobot(mRobot.robot)
-        macro.playMacro()
+        return macro
     }
 
     // TODO: Still a work in progress
-    fun itsyBitsySpiderDance() {
-        if (mRobot == null)
-            return
-
+    fun itsyBitsySpiderDance() : MacroObject {
         val macro = MacroObject()
 
         val color1 = RGB(200, 0, 0, 0)
@@ -247,15 +233,11 @@ class RobotDances(robot: ConvenienceRobot) {
 
         //Send the macro to the robot and play
         macro.mode = MacroObject.MacroObjectMode.Normal
-        macro.setRobot(mRobot.robot)
-        macro.playMacro()
+        return macro
     }
 
     // TODO: Still a work in progress
-    fun headShouldersKneesToesDance() {
-        if (mRobot == null)
-            return
-
+    fun headShouldersKneesToesDance() : MacroObject {
         val macro = MacroObject()
 
         val color1 = RGB(255, 255, 0, 0)
@@ -331,15 +313,11 @@ class RobotDances(robot: ConvenienceRobot) {
 
         //Send the macro to the robot and play
         macro.mode = MacroObject.MacroObjectMode.Normal
-        macro.setRobot(mRobot.robot)
-        macro.playMacro()
+        return macro
     }
 
     // TODO: Still a work in progress
-    fun sesameStreetDance() {
-        if (mRobot == null)
-            return
-
+    fun sesameStreetDance() : MacroObject {
         val macro = MacroObject()
 
         val color1 = RGB(255, 0, 255, 0)
@@ -415,15 +393,11 @@ class RobotDances(robot: ConvenienceRobot) {
 
         //Send the macro to the robot and play
         macro.mode = MacroObject.MacroObjectMode.Normal
-        macro.setRobot(mRobot.robot)
-        macro.playMacro()
+        return macro
     }
 
     // TODO: Still a work in progress
-    fun elmosSongDance() {
-        if (mRobot == null)
-            return
-
+    fun elmosSongDance() : MacroObject {
         val macro = MacroObject()
 
         val color1 = RGB(255, 0, 0, 0)
@@ -499,7 +473,6 @@ class RobotDances(robot: ConvenienceRobot) {
 
         //Send the macro to the robot and play
         macro.mode = MacroObject.MacroObjectMode.Normal
-        macro.setRobot(mRobot.robot)
-        macro.playMacro()
+        return macro
     }
 }
