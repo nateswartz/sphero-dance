@@ -6,17 +6,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/status_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.25"
-        android:gravity="center" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="12"
+        android:layout_weight="9"
         android:orientation="vertical">
 
         <LinearLayout
@@ -86,7 +79,7 @@
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1.5"
+        android:layout_weight="1"
         android:columnCount="2"
         android:paddingTop="2dp"
         android:rowCount="1">

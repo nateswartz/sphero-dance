@@ -17,6 +17,9 @@ import com.orbotix.common.Robot
 import com.orbotix.common.RobotChangedStateListener
 import com.orbotix.le.RobotLE
 import java.util.*
+import android.widget.Toast
+import android.R.attr.data
+import android.view.Gravity
 
 
 class MainActivity : Activity(), RobotChangedStateListener {
@@ -25,9 +28,10 @@ class MainActivity : Activity(), RobotChangedStateListener {
     private var mRobotDances: RobotDances? = null
     private var mRobot: ConvenienceRobot? = null
     private var mDiscoveryAgent = DualStackDiscoveryAgent()
-    private val clicks = HashMap<String, Int>()
+    private val clicks = HashMap<Int, Int>()
     private var mp = MediaPlayer()
     private val clicksToStop = 2
+    private val requestCodeLocationPermission = 42
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +43,7 @@ class MainActivity : Activity(), RobotChangedStateListener {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            REQUEST_CODE_LOCATION_PERMISSION -> {
+            requestCodeLocationPermission -> {
                 for (i in permissions.indices) {
                     if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         startDiscovery()
@@ -68,8 +72,10 @@ class MainActivity : Activity(), RobotChangedStateListener {
     }
 
     private fun startDiscovery() {
-        val textViewToChange = findViewById(R.id.status_text) as TextView
-        textViewToChange.text = "Connecting..."
+        var toast = Toast.makeText(this, "Connecting...",
+                Toast.LENGTH_LONG)
+        toast.setGravity(Gravity.TOP, 0, 0)
+        toast.show()
         //If the DiscoveryAgent is not already looking for robots, start discovery.
         if (!mDiscoveryAgent.isDiscovering) {
             try {
@@ -109,8 +115,10 @@ class MainActivity : Activity(), RobotChangedStateListener {
     override fun handleRobotChangedState(robot: Robot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
         when (type) {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
-                val textViewToChange = findViewById(R.id.status_text) as TextView
-                textViewToChange.text = "Connected!"
+                var toast = Toast.makeText(this, "Connected!",
+                        Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.TOP, 0, 0)
+                toast.show()
 
                 //If robot uses Bluetooth LE, Developer Mode can be turned on.
                 //This turns off DOS protection. This generally isn't required.
@@ -146,28 +154,28 @@ class MainActivity : Activity(), RobotChangedStateListener {
         spinButton.isEnabled = false
 
         val playCheckup = findViewById(R.id.play_checkup) as ImageButton
-        playCheckup.setOnClickListener { triggerTimeForYourCheckup() }
+        playCheckup.setOnClickListener { triggerSong(mRobotDances!!::timeForYourCheckupDance, R.raw.time_for_your_checkup) }
 
         val playDaniel = findViewById(R.id.play_daniel) as ImageButton
-        playDaniel.setOnClickListener { triggerDanielTiger() }
+        playDaniel.setOnClickListener { triggerSong(mRobotDances!!::danielTigerDance, R.raw.daniel_tiger_theme) }
 
         val playSesame = findViewById(R.id.play_sesame) as ImageButton
-        playSesame.setOnClickListener { triggerSesameStreet() }
+        playSesame.setOnClickListener { triggerSong(mRobotDances!!::sesameStreetDance, R.raw.seasame_street_theme) }
 
         val playElmo = findViewById(R.id.play_elmo) as ImageButton
-        playElmo.setOnClickListener { triggerElmosSong() }
+        playElmo.setOnClickListener { triggerSong(mRobotDances!!::elmosSongDance, R.raw.elmos_song) }
 
         val playSpider = findViewById(R.id.play_spider) as ImageButton
-        playSpider.setOnClickListener { triggerItsyBitsySpider() }
+        playSpider.setOnClickListener { triggerSong(mRobotDances!!::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider) }
 
         val playHead = findViewById(R.id.play_head) as ImageButton
-        playHead.setOnClickListener { triggerHeadShouldersKneesToes() }
+        playHead.setOnClickListener { triggerSong(mRobotDances!!::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes) }
     }
 
-    private fun recordClick(buttonName: String) {
+    private fun recordClick(buttonId: Int) {
         var keyFound = false
         for (key in clicks.keys) {
-            if (key == buttonName) {
+            if (key == buttonId) {
                 clicks.put(key, clicks[key]!! + 1)
                 keyFound = true
             } else {
@@ -176,60 +184,24 @@ class MainActivity : Activity(), RobotChangedStateListener {
         }
 
         if (!keyFound) {
-            clicks.put(buttonName, 0)
+            clicks.put(buttonId, 0)
         }
     }
 
-    private fun triggerSong(song: String, resid: Int) {
+    private fun triggerSong(song: () -> Unit, resid: Int) {
         if (!mp.isPlaying) {
             mp = MediaPlayer.create(applicationContext, resid)
             mp.start()
             if (mRobot != null && mRobot!!.isConnected) {
                 mRobotActions!!.setRobotToDefaultState()
-                when (song) {
-                    "doc" -> mRobotDances!!.timeForYourCheckupDance()
-                    "daniel" -> mRobotDances!!.danielTigerDance()
-                    "sesame" -> mRobotDances!!.sesameStreetDance()
-                    "elmo" -> mRobotDances!!.elmosSongDance()
-                    "spider" -> mRobotDances!!.itsyBitsySpiderDance()
-                    "head" -> mRobotDances!!.headShouldersKneesToesDance()
-                }
+                song()
             }
-        } else if (clicks.containsKey(song) && clicks[song]!! >= clicksToStop) {
+        } else if (clicks.containsKey(resid) && clicks[resid]!! >= clicksToStop) {
             mRobotActions!!.setRobotToDefaultState()
             mp.stop()
-            clicks.put(song, 0)
+            clicks.put(resid, 0)
         } else {
-            recordClick(song)
+            recordClick(resid)
         }
     }
-
-    private fun triggerDanielTiger() {
-        triggerSong("daniel", R.raw.daniel_tiger_theme)
-    }
-
-    private fun triggerTimeForYourCheckup() {
-        triggerSong("doc", R.raw.time_for_your_checkup)
-    }
-
-    private fun triggerSesameStreet() {
-        triggerSong("sesame", R.raw.seasame_street_theme)
-    }
-
-    private fun triggerElmosSong() {
-        triggerSong("elmo", R.raw.elmos_song)
-    }
-
-    private fun triggerItsyBitsySpider() {
-        triggerSong("spider", R.raw.itsy_bitsy_spider)
-    }
-
-    private fun triggerHeadShouldersKneesToes() {
-        triggerSong("head", R.raw.head_shoulders_knees_toes)
-    }
-
-    companion object {
-        private val REQUEST_CODE_LOCATION_PERMISSION = 42
-    }
-
 }
