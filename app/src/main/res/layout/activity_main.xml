@@ -76,38 +76,68 @@
 
     </ScrollView>
 
-    <GridLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:columnCount="2"
-        android:paddingTop="2dp"
-        android:rowCount="1">
+        android:layout_weight="1.5"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/spin_button"
-            android:layout_width="wrap_content"
+        <GridLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_column="0"
-            android:layout_columnWeight="1"
-            android:layout_gravity="fill"
-            android:layout_margin="2dp"
-            android:layout_row="0"
-            android:layout_rowWeight="1"
-            android:padding="2dp"
-            android:text="Spin" />
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/run_macro"
-            android:layout_column="1"
-            android:layout_columnWeight="1"
-            android:layout_gravity="fill"
-            android:layout_margin="2dp"
-            android:layout_row="0"
-            android:layout_rowWeight="1"
-            android:padding="2dp"
-            android:text="Shake" />
+            <Button
+                android:id="@+id/spin_button"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="0"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Spin" />
 
-    </GridLayout>
+            <Button
+                android:id="@+id/run_macro"
+                android:layout_column="1"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="0"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Shake" />
+
+            <Button
+                android:id="@+id/test"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="1"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Test" />
+
+            <Button
+                android:id="@+id/test2"
+                android:layout_column="1"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="1"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Test2" />
+
+            <Button
+                android:id="@+id/test3"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="2"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Test3" />
+
+        </GridLayout>
+    </ScrollView>
 
 </LinearLayout>
