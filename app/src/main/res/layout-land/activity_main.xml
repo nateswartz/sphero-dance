@@ -1,132 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.nates.myfirstapp.MainActivity"
-    tools:layout_editor_absoluteY="81dp"
-    tools:layout_editor_absoluteX="0dp">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/text_main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:layout_marginStart="28dp"
-        tools:layout_constraintTop_creator="1"
-        android:layout_marginTop="27dp"
-        tools:layout_constraintLeft_creator="1"
-        app:layout_constraintLeft_toLeftOf="@+id/gridLayout"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <ToggleButton
-        android:id="@+id/back_led_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BackLED"
-        tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_constraintLeft_creator="1"
-        android:layout_marginBottom="26dp"
-        tools:layout_constraintRight_creator="1"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintHorizontal_bias="0.82" />
-
-    <GridLayout
-        android:layout_width="132dp"
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:id="@+id/gridLayout"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_constraintLeft_creator="1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_weight="9"
+        android:orientation="vertical">
 
-    </GridLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <ToggleButton
-        android:id="@+id/main_led_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ToggleButton"
-        android:layout_marginStart="32dp"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintLeft_creator="1"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintLeft_toLeftOf="@+id/textView"
-        android:layout_marginLeft="32dp" />
+            <ImageButton
+                android:id="@+id/play_checkup"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="2"
+                android:background="#1a8e1a"
+                android:elevation="0dp"
+                android:src="@drawable/docmcstuffins" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cycle Main LED"
-        android:textSize="22dp"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_constraintLeft_creator="1"
-        android:layout_marginBottom="86dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintHorizontal_bias="0.116" />
+            <ImageButton
+                android:id="@+id/play_daniel"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="2"
+                android:background="#01AAEB"
+                android:src="@drawable/daniel_tiger" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Toggle Back LED"
-        android:textSize="22dp"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toTopOf="@+id/back_led_toggle"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_constraintLeft_creator="1"
-        android:layout_marginBottom="12dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintHorizontal_bias="0.926" />
+            <ImageButton
+                android:id="@+id/play_sesame"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="2"
+                android:background="#fff000"
+                android:src="@drawable/sesame_street" />
 
-    <Button
-        android:id="@+id/play_daniel"
-        android:layout_width="240dp"
-        android:layout_height="216dp"
-        android:layout_marginBottom="29dp"
-        android:text="Daniel Tiger"
-        android:textSize="36dp"
-        android:textColor="#ffffff"
-        android:background="#0000ff"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintHorizontal_bias="0.719"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_constraintBottom_creator="1"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintRight_creator="1" />
+            <ImageButton
+                android:id="@+id/play_elmo"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="2"
+                android:background="#ff00ff"
+                android:src="@drawable/elmos_song" />
 
-    <Button
-        android:id="@+id/play_checkup"
-        android:layout_width="240dp"
-        android:layout_height="216dp"
-        android:layout_marginBottom="29dp"
-        android:text="Time For Your Check Up"
-        android:textSize="36dp"
-        android:textColor="#000000"
-        android:background="#ff00ff"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintHorizontal_bias="0.212"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_constraintBottom_creator="1"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintRight_creator="1" />
+            <ImageButton
+                android:id="@+id/play_head"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="2"
+                android:background="#5d1a5f"
+                android:src="@drawable/head_shoulders_knees_toes" />
 
-</android.support.constraint.ConstraintLayout>
+            <ImageButton
+                android:id="@+id/play_spider"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="1dp"
+                android:layout_weight="2"
+                android:background="#dc6d0c"
+                android:src="@drawable/itsybitsyspider" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
+        android:orientation="vertical">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/spin_button"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="0"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Spin" />
+
+            <Button
+                android:id="@+id/run_macro"
+                android:layout_column="1"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="0"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Shake" />
+
+            <Button
+                android:id="@+id/test"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="1"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Test" />
+
+            <Button
+                android:id="@+id/test2"
+                android:layout_column="1"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="1"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Test2" />
+
+            <Button
+                android:id="@+id/test3"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill"
+                android:layout_row="2"
+                android:layout_rowWeight="1"
+                android:theme="@android:style/Theme.Material"
+                android:text="Test3" />
+
+        </GridLayout>
+    </ScrollView>
+
+</LinearLayout>
