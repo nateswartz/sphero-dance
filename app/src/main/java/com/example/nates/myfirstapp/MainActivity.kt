@@ -1,10 +1,7 @@
 package com.example.nates.myfirstapp
 
-import android.Manifest
 import android.app.Activity
-import android.content.pm.PackageManager
 import android.media.MediaPlayer
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -19,84 +16,86 @@ import java.util.*
 import android.widget.Toast
 import android.view.Gravity
 import com.orbotix.macro.MacroObject
+import android.content.ComponentName
+import android.content.Context
+import android.os.IBinder
+import android.content.ServiceConnection
+import android.content.Context.BIND_AUTO_CREATE
+import android.content.Intent
+import android.renderscript.ScriptGroup
 
 
-class MainActivity : Activity(), RobotChangedStateListener {
-
+class MainActivity : Activity() {
+    private var mBoundService: RobotProviderService? = null
     private var mRobotActions: RobotActions? = null
     private var mRobotDances = RobotDances()
     private var mRobot: ConvenienceRobot? = null
-    private var mDiscoveryAgent = DualStackDiscoveryAgent()
     private val clicks = HashMap<Int, Int>()
     private var mp = MediaPlayer()
     private val clicksToStop = 2
-    private val requestCodeLocationPermission = 42
+    private var mIsBound = false
+
+    private val mConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            mBoundService = (service as RobotProviderService.LocalBinder).service
+            var toast = Toast.makeText(this@MainActivity, "Connected!",
+                    Toast.LENGTH_LONG)
+            toast.setGravity(Gravity.TOP, 0, 0)
+            toast.show()
+            mIsBound = true
+        }
+
+        override fun onServiceDisconnected(className: ComponentName) {
+            mBoundService = null
+            var toast = Toast.makeText(this@MainActivity, "Disconnected!",
+                    Toast.LENGTH_LONG)
+            toast.setGravity(Gravity.TOP, 0, 0)
+            toast.show()
+            mIsBound = false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.e("Activity", "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupButtons()
-
-        mDiscoveryAgent.addRobotStateListener(this)
     }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            requestCodeLocationPermission -> {
-                for (i in permissions.indices) {
-                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        startDiscovery()
-                        Log.d("Permissions", "Permission Granted: " + permissions[i])
-                    } else if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                        Log.d("Permissions", "Permission Denied: " + permissions[i])
-                    }
-                }
-            }
-            else -> {
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            }
-        }
-    }
-
 
     override fun onStart() {
+        Log.e("Activity", "onStart")
         super.onStart()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return
-            }
-        }
-        startDiscovery()
+        doBindService()
     }
 
-    private fun startDiscovery() {
-        var toast = Toast.makeText(this, "Connecting...",
+    fun doBindService() {
+        Log.e("Activity", "doBindService")
+        // Establish a connection with the service.  We use an explicit
+        // class name because we want a specific service implementation that
+        // we know will be running in our own process (and thus won't be
+        // supporting component replacement by other applications).
+        var toast = Toast.makeText(this@MainActivity, "doBindService!",
                 Toast.LENGTH_LONG)
         toast.setGravity(Gravity.TOP, 0, 0)
         toast.show()
-        //If the DiscoveryAgent is not already looking for robots, start discovery.
-        if (!mDiscoveryAgent.isDiscovering) {
-            try {
-                mDiscoveryAgent.startDiscovery(applicationContext)
-            } catch (e: DiscoveryException) {
-                Log.e("Sphero", "DiscoveryException: " + e.message)
-            }
+        val intent = Intent(this, RobotProviderService::class.java)
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+    }
 
+    fun doUnbindService() {
+        var toast = Toast.makeText(this@MainActivity, "doUnbindService!",
+                Toast.LENGTH_LONG)
+        toast.setGravity(Gravity.TOP, 0, 0)
+        toast.show()
+        if (mIsBound) {
+            // Detach our existing connection.
+            unbindService(mConnection)
         }
     }
 
     override fun onStop() {
-        //If the DiscoveryAgent is in discovery mode, stop it.
-        if (mDiscoveryAgent.isDiscovering) {
-            mDiscoveryAgent.stopDiscovery()
-        }
-
-        //If a robot is connected to the device, disconnect it
-        if (mRobot != null) {
-            mRobot!!.disconnect()
-            mRobot = null
-        }
+        doUnbindService()
 
         super.onStop()
     }
@@ -104,29 +103,15 @@ class MainActivity : Activity(), RobotChangedStateListener {
     override fun onDestroy() {
         super.onDestroy()
         mRobotActions!!.setRobotToDefaultState()
-        mDiscoveryAgent.addRobotStateListener(null)
         if (mp.isPlaying) {
             mp.stop()
             mp.release()
         }
     }
 
-    override fun handleRobotChangedState(robot: Robot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
+    fun handleRobotChangedState(robot: Robot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
         when (type) {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
-                var toast = Toast.makeText(this, "Connected!",
-                        Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.TOP, 0, 0)
-                toast.show()
-
-                //If robot uses Bluetooth LE, Developer Mode can be turned on.
-                //This turns off DOS protection. This generally isn't required.
-                (robot as? RobotLE)?.setDeveloperMode(true)
-
-                //Save the robot as a ConvenienceRobot for additional utility methods
-                mRobot = ConvenienceRobot(robot)
-                mRobotActions = RobotActions(mRobot!!)
-
                 val runMacroButton = findViewById(R.id.run_macro) as Button
                 val spinButton = findViewById(R.id.spin_button) as Button
                 runMacroButton.isEnabled = true

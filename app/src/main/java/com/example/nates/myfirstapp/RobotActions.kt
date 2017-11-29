@@ -17,9 +17,6 @@ class RobotActions(robot: ConvenienceRobot) {
 
     fun spin() {
 
-        if (mRobot == null)
-            return
-
         setRobotToDefaultState()
 
         if (!isSpinning) {
@@ -31,8 +28,6 @@ class RobotActions(robot: ConvenienceRobot) {
     }
 
     fun runMacro() {
-        if (mRobot == null)
-            return
 
         setRobotToDefaultState()
 
@@ -59,8 +54,6 @@ class RobotActions(robot: ConvenienceRobot) {
     }
 
     fun setRobotToDefaultState() {
-        if (mRobot == null)
-            return
 
         mRobot.sendCommand(AbortMacroCommand())
         mRobot.setLed(0.5f, 0.5f, 0.5f)
