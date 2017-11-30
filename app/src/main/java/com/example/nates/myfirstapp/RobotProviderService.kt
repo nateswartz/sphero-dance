@@ -14,6 +14,7 @@ import com.orbotix.common.RobotChangedStateListener
 
 class RobotProviderService : Service(), RobotChangedStateListener {
 
+    private var mListener : RobotServiceListener? = null
     private val mDiscoveryAgent = DualStackDiscoveryAgent()
     var robot: ConvenienceRobot? = null
     private val mBinder = LocalBinder()
@@ -55,16 +56,26 @@ class RobotProviderService : Service(), RobotChangedStateListener {
     }
 
     override fun handleRobotChangedState(robot: Robot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
-        Log.e("Service", "handleRobotChangedState")
+        Log.e("Service", "handleRobotChangedState " + type)
         when (type) {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
+                Log.e("Service", "handleRobotChangedState - Online")
                 //Save the robot as a ConvenienceRobot for additional utility methods
                 this.robot = ConvenienceRobot(robot)
-                // Notify listeners
+                mListener?.handleRobotConnected(this.robot!!)
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
-                // Notify listeners
+                Log.e("Service", "handleRobotChangedState - Offline")
+                mListener?.handleRobotDisconnected()
             }
         }
+    }
+
+    fun setCallbacks(listener: RobotServiceListener) {
+        mListener = listener
+    }
+
+    fun removeCallbacks() {
+        mListener = null
     }
 }

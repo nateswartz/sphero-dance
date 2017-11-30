@@ -1,31 +1,25 @@
 package com.example.nates.myfirstapp
 
 import android.app.Activity
-import android.media.MediaPlayer
-import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.ImageButton
-import com.orbotix.ConvenienceRobot
-import com.orbotix.DualStackDiscoveryAgent
-import com.orbotix.common.DiscoveryException
-import com.orbotix.common.Robot
-import com.orbotix.common.RobotChangedStateListener
-import com.orbotix.le.RobotLE
-import java.util.*
-import android.widget.Toast
-import android.view.Gravity
-import com.orbotix.macro.MacroObject
 import android.content.ComponentName
 import android.content.Context
-import android.os.IBinder
-import android.content.ServiceConnection
-import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
-import android.renderscript.ScriptGroup
+import android.content.ServiceConnection
+import android.media.MediaPlayer
+import android.os.Bundle
+import android.os.IBinder
+import android.util.Log
+import android.view.Gravity
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.Toast
+import com.orbotix.ConvenienceRobot
+import com.orbotix.macro.MacroObject
+import java.util.*
 
 
-class MainActivity : Activity() {
+class MainActivity : Activity(), RobotServiceListener {
+
     private var mBoundService: RobotProviderService? = null
     private var mRobotActions: RobotActions? = null
     private var mRobotDances = RobotDances()
@@ -43,6 +37,7 @@ class MainActivity : Activity() {
             toast.setGravity(Gravity.TOP, 0, 0)
             toast.show()
             mIsBound = true
+            mBoundService?.setCallbacks(this@MainActivity)
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
@@ -52,6 +47,7 @@ class MainActivity : Activity() {
             toast.setGravity(Gravity.TOP, 0, 0)
             toast.show()
             mIsBound = false
+            mBoundService?.removeCallbacks()
         }
     }
 
@@ -66,36 +62,16 @@ class MainActivity : Activity() {
         Log.e("Activity", "onStart")
         super.onStart()
 
-        doBindService()
-    }
-
-    fun doBindService() {
-        Log.e("Activity", "doBindService")
-        // Establish a connection with the service.  We use an explicit
-        // class name because we want a specific service implementation that
-        // we know will be running in our own process (and thus won't be
-        // supporting component replacement by other applications).
-        var toast = Toast.makeText(this@MainActivity, "doBindService!",
-                Toast.LENGTH_LONG)
-        toast.setGravity(Gravity.TOP, 0, 0)
-        toast.show()
         val intent = Intent(this, RobotProviderService::class.java)
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
     }
 
-    fun doUnbindService() {
-        var toast = Toast.makeText(this@MainActivity, "doUnbindService!",
-                Toast.LENGTH_LONG)
-        toast.setGravity(Gravity.TOP, 0, 0)
-        toast.show()
+    override fun onStop() {
+        Log.e("Activity", "onStop")
         if (mIsBound) {
             // Detach our existing connection.
             unbindService(mConnection)
         }
-    }
-
-    override fun onStop() {
-        doUnbindService()
 
         super.onStop()
     }
@@ -109,21 +85,23 @@ class MainActivity : Activity() {
         }
     }
 
-    fun handleRobotChangedState(robot: Robot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
-        when (type) {
-            RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
-                val runMacroButton = findViewById(R.id.run_macro) as Button
-                val spinButton = findViewById(R.id.spin_button) as Button
-                runMacroButton.isEnabled = true
-                spinButton.isEnabled = true
-            }
-            RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
-                val runMacroButton = findViewById(R.id.run_macro) as Button
-                val spinButton = findViewById(R.id.spin_button) as Button
-                runMacroButton.isEnabled = false
-                spinButton.isEnabled = false
-            }
-        }
+    override fun handleRobotConnected(robot : ConvenienceRobot) {
+        Log.e("Activity", "handleRobotConnected")
+        mRobot = robot
+        mRobotActions = RobotActions(mRobot!!)
+        val runMacroButton = findViewById(R.id.run_macro) as Button
+        val spinButton = findViewById(R.id.spin_button) as Button
+        runMacroButton.isEnabled = true
+        spinButton.isEnabled = true
+    }
+
+    override fun handleRobotDisconnected() {
+        Log.e("Activity", "handleRobotDisconnected")
+        mRobot = null
+        val runMacroButton = findViewById(R.id.run_macro) as Button
+        val spinButton = findViewById(R.id.spin_button) as Button
+        runMacroButton.isEnabled = false
+        spinButton.isEnabled = false
     }
 
     private fun setupButtons() {
