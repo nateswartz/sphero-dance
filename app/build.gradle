@@ -3,7 +3,6 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "26.0.0"
     defaultConfig {
         applicationId "com.example.nates.myfirstapp"
         minSdkVersion 22

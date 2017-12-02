@@ -13,13 +13,12 @@ import com.orbotix.common.RobotChangedStateListener
 
 
 class RobotProviderService : Service(), RobotChangedStateListener {
-
-    private var mListener : RobotServiceListener? = null
+    private var mListeners: MutableList<RobotServiceListener> = mutableListOf()
     private val mDiscoveryAgent = DualStackDiscoveryAgent()
-    var robot: ConvenienceRobot? = null
-    private val mBinder = LocalBinder()
+    private var robot: ConvenienceRobot? = null
+    private val mBinder = RobotBinder()
 
-    inner class LocalBinder : Binder() {
+    inner class RobotBinder : Binder() {
         internal val service: RobotProviderService
             get() = this@RobotProviderService
     }
@@ -37,10 +36,8 @@ class RobotProviderService : Service(), RobotChangedStateListener {
         }
 
         //If a robot is connected to the device, disconnect it
-        if (robot != null) {
-            robot!!.disconnect()
-            robot = null
-        }
+        robot?.disconnect();
+        robot = null;
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -49,7 +46,7 @@ class RobotProviderService : Service(), RobotChangedStateListener {
             try {
                 mDiscoveryAgent.startDiscovery(applicationContext)
             } catch (e: DiscoveryException) {
-                Log.e("Sphero", "DiscoveryException: " + e.message)
+                Log.e("Service", "DiscoveryException: " + e.message)
             }
         }
         return mBinder
@@ -60,22 +57,25 @@ class RobotProviderService : Service(), RobotChangedStateListener {
         when (type) {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
                 Log.e("Service", "handleRobotChangedState - Online")
-                //Save the robot as a ConvenienceRobot for additional utility methods
                 this.robot = ConvenienceRobot(robot)
-                mListener?.handleRobotConnected(this.robot!!)
+                for (listener in mListeners) {
+                    listener.handleRobotConnected(this.robot!!)
+                }
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
                 Log.e("Service", "handleRobotChangedState - Offline")
-                mListener?.handleRobotDisconnected()
+                for (listener in mListeners) {
+                    listener.handleRobotDisconnected()
+                }
             }
         }
     }
 
-    fun setCallbacks(listener: RobotServiceListener) {
-        mListener = listener
+    fun addListener(listener: RobotServiceListener) {
+        mListeners.add(listener)
     }
 
-    fun removeCallbacks() {
-        mListener = null
+    fun removeListener(listener: RobotServiceListener) {
+        mListeners.remove(listener)
     }
 }

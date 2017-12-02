@@ -31,23 +31,21 @@ class MainActivity : Activity(), RobotServiceListener {
 
     private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            mBoundService = (service as RobotProviderService.LocalBinder).service
-            var toast = Toast.makeText(this@MainActivity, "Connected!",
+            Log.e("Activity","onServiceConnected")
+            var toast = Toast.makeText(this@MainActivity, "Connecting...",
                     Toast.LENGTH_LONG)
             toast.setGravity(Gravity.TOP, 0, 0)
             toast.show()
+            mBoundService = (service as RobotProviderService.RobotBinder).service
             mIsBound = true
-            mBoundService?.setCallbacks(this@MainActivity)
+            mBoundService?.addListener(this@MainActivity)
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
+            Log.e("Activity","onServiceDisconnected")
             mBoundService = null
-            var toast = Toast.makeText(this@MainActivity, "Disconnected!",
-                    Toast.LENGTH_LONG)
-            toast.setGravity(Gravity.TOP, 0, 0)
-            toast.show()
             mIsBound = false
-            mBoundService?.removeCallbacks()
+            mBoundService?.removeListener(this@MainActivity)
         }
     }
 
@@ -72,13 +70,12 @@ class MainActivity : Activity(), RobotServiceListener {
             // Detach our existing connection.
             unbindService(mConnection)
         }
-
         super.onStop()
     }
 
     override fun onDestroy() {
+        Log.e("Activity", "onDestroy")
         super.onDestroy()
-        mRobotActions!!.setRobotToDefaultState()
         if (mp.isPlaying) {
             mp.stop()
             mp.release()
@@ -87,6 +84,10 @@ class MainActivity : Activity(), RobotServiceListener {
 
     override fun handleRobotConnected(robot : ConvenienceRobot) {
         Log.e("Activity", "handleRobotConnected")
+        var toast = Toast.makeText(this@MainActivity, "Connected!",
+                Toast.LENGTH_LONG)
+        toast.setGravity(Gravity.TOP, 0, 0)
+        toast.show()
         mRobot = robot
         mRobotActions = RobotActions(mRobot!!)
         val runMacroButton = findViewById(R.id.run_macro) as Button
@@ -142,7 +143,7 @@ class MainActivity : Activity(), RobotServiceListener {
         if (!mp.isPlaying) {
             mp = MediaPlayer.create(applicationContext, resid)
             mp.start()
-            if (mRobot != null && mRobot!!.isConnected) {
+            if (mRobot?.isConnected == true) {
                 mRobotActions!!.setRobotToDefaultState()
                 val macro = song()
                 macro.setRobot(mRobot!!.robot)
