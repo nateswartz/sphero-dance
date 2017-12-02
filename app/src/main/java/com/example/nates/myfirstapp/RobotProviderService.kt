@@ -15,7 +15,7 @@ import com.orbotix.common.RobotChangedStateListener
 class RobotProviderService : Service(), RobotChangedStateListener {
     private var mListeners: MutableList<RobotServiceListener> = mutableListOf()
     private val mDiscoveryAgent = DualStackDiscoveryAgent()
-    private var robot: ConvenienceRobot? = null
+    private var mRobot: ConvenienceRobot? = null
     private val mBinder = RobotBinder()
 
     inner class RobotBinder : Binder() {
@@ -36,8 +36,8 @@ class RobotProviderService : Service(), RobotChangedStateListener {
         }
 
         //If a robot is connected to the device, disconnect it
-        robot?.disconnect();
-        robot = null;
+        mRobot?.disconnect();
+        mRobot = null;
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -57,9 +57,9 @@ class RobotProviderService : Service(), RobotChangedStateListener {
         when (type) {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
                 Log.e("Service", "handleRobotChangedState - Online")
-                this.robot = ConvenienceRobot(robot)
+                this.mRobot = ConvenienceRobot(robot)
                 for (listener in mListeners) {
-                    listener.handleRobotConnected(this.robot!!)
+                    listener.handleRobotConnected(this.mRobot!!)
                 }
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
@@ -69,6 +69,14 @@ class RobotProviderService : Service(), RobotChangedStateListener {
                 }
             }
         }
+    }
+
+    fun hasActiveRobot() : Boolean {
+        return mRobot?.isConnected == true
+    }
+
+    fun getRobot() : ConvenienceRobot {
+        return mRobot!!
     }
 
     fun addListener(listener: RobotServiceListener) {

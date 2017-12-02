@@ -1,6 +1,5 @@
 package com.example.nates.myfirstapp
 
-import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -10,15 +9,14 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.Gravity
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.Toast
 import com.orbotix.ConvenienceRobot
 import com.orbotix.macro.MacroObject
 import java.util.*
+import android.support.v7.app.AppCompatActivity
+import android.widget.*
 
 
-class MainActivity : Activity(), RobotServiceListener {
+class MainActivity : AppCompatActivity(), RobotServiceListener {
 
     private var mBoundService: RobotProviderService? = null
     private var mRobotActions: RobotActions? = null
@@ -90,30 +88,25 @@ class MainActivity : Activity(), RobotServiceListener {
         toast.show()
         mRobot = robot
         mRobotActions = RobotActions(mRobot!!)
-        val runMacroButton = findViewById(R.id.run_macro) as Button
-        val spinButton = findViewById(R.id.spin_button) as Button
-        runMacroButton.isEnabled = true
-        spinButton.isEnabled = true
+        val macrosActivityButton = findViewById(R.id.robot_macros) as Button
+        macrosActivityButton.isEnabled = true
     }
 
     override fun handleRobotDisconnected() {
         Log.e("Activity", "handleRobotDisconnected")
         mRobot = null
-        val runMacroButton = findViewById(R.id.run_macro) as Button
-        val spinButton = findViewById(R.id.spin_button) as Button
-        runMacroButton.isEnabled = false
-        spinButton.isEnabled = false
+        val macrosActivityButton = findViewById(R.id.robot_macros) as Button
+        macrosActivityButton.isEnabled = false
     }
 
     private fun setupButtons() {
-        val runMacroButton = findViewById(R.id.run_macro) as Button
-        runMacroButton.setOnClickListener { mRobotActions!!.runMacro() }
+        val macrosActivityButton = findViewById(R.id.robot_macros) as Button
+        macrosActivityButton.setOnClickListener {
+            val intent = Intent(this, RobotMacrosActivity::class.java)
+            startActivity(intent)
+        }
 
-        val spinButton = findViewById(R.id.spin_button) as Button
-        spinButton.setOnClickListener { mRobotActions!!.spin() }
-
-        runMacroButton.isEnabled = false
-        spinButton.isEnabled = false
+        macrosActivityButton.isEnabled = false
 
         mapButton(R.id.play_checkup, mRobotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
         mapButton(R.id.play_daniel, mRobotDances::danielTigerDance, R.raw.daniel_tiger_theme)
@@ -160,7 +153,7 @@ class MainActivity : Activity(), RobotServiceListener {
 
     private fun mapButton(button: Int, dance: () -> MacroObject, song: Int)
     {
-        val playCheckup = findViewById(button) as ImageButton
-        playCheckup.setOnClickListener { triggerSong(dance, song) }
+        val playSong = findViewById(button) as ImageButton
+        playSong.setOnClickListener { triggerSong(dance, song) }
     }
 }
