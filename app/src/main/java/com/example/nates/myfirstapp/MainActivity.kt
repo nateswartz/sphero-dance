@@ -30,13 +30,17 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
     private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             Log.e("Activity","onServiceConnected")
-            var toast = Toast.makeText(this@MainActivity, "Connecting...",
-                    Toast.LENGTH_LONG)
-            toast.setGravity(Gravity.TOP, 0, 0)
-            toast.show()
             mBoundService = (service as RobotProviderService.RobotBinder).service
             mIsBound = true
             mBoundService?.addListener(this@MainActivity)
+            if (mBoundService?.hasActiveRobot() == true) {
+                handleRobotAlreadyConnected(mBoundService!!.getRobot())
+            } else {
+                var toast = Toast.makeText(this@MainActivity, "Connecting...",
+                        Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.TOP, 0, 0)
+                toast.show()
+            }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
@@ -80,16 +84,20 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
         }
     }
 
+    fun handleRobotAlreadyConnected(robot: ConvenienceRobot) {
+        mRobot = robot
+        mRobotActions = RobotActions(mRobot!!)
+        val macrosActivityButton = findViewById(R.id.robot_macros) as Button
+        macrosActivityButton.isEnabled = true
+    }
+
     override fun handleRobotConnected(robot : ConvenienceRobot) {
         Log.e("Activity", "handleRobotConnected")
         var toast = Toast.makeText(this@MainActivity, "Connected!",
                 Toast.LENGTH_LONG)
         toast.setGravity(Gravity.TOP, 0, 0)
         toast.show()
-        mRobot = robot
-        mRobotActions = RobotActions(mRobot!!)
-        val macrosActivityButton = findViewById(R.id.robot_macros) as Button
-        macrosActivityButton.isEnabled = true
+        handleRobotAlreadyConnected(robot)
     }
 
     override fun handleRobotDisconnected() {

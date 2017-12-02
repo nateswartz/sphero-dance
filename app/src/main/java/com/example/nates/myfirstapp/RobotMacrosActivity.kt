@@ -77,10 +77,6 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
 
     override fun handleRobotConnected(robot : ConvenienceRobot) {
         Log.e("MacrosActivity", "handleRobotConnected")
-        var toast = Toast.makeText(this@RobotMacrosActivity, "Connected!",
-                Toast.LENGTH_LONG)
-        toast.setGravity(Gravity.TOP, 0, 0)
-        toast.show()
         mRobot = robot
         mRobotActions = RobotActions(mRobot!!)
         val runMacroButton = findViewById(R.id.run_macro) as Button
