@@ -9,56 +9,68 @@ import com.orbotix.macro.cmd.*
  * Created by nates on 11/22/2017.
  */
 
-class RobotActions(robot: ConvenienceRobot) {
+class RobotActions {
 
-    private var mRobot = robot;
-    private var isSpinning = false
-    private var isRunningMacro = false
+    fun spin(): MacroObject {
+        var macro = MacroObject()
 
-    fun spin() {
+        macro.addCommand(LoopStart(500))
+        macro.addCommand(RawMotor(RawMotor.DriveMode.REVERSE, 255, RawMotor.DriveMode.FORWARD, 255, 10))
+        macro.addCommand(Delay(10))
 
-        setRobotToDefaultState()
-
-        if (!isSpinning) {
-            mRobot.setRawMotors(RawMotor.DriveMode.REVERSE.ordinal, 255, RawMotor.DriveMode.FORWARD.ordinal, 255)
-            isSpinning = true
-        } else {
-            isSpinning = false
-        }
+        return macro
     }
 
-    fun runMacro() {
+    fun shake(): MacroObject {
+        var macro = MacroObject()
 
-        setRobotToDefaultState()
+        macro.addCommand(Stabilization(false, 0))
+        macro.addCommand(LoopStart(500))
+        macro.addCommand(RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10))
+        macro.addCommand(Delay(10))
+        macro.addCommand(RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10))
+        macro.addCommand(Delay(10))
+        macro.addCommand(LoopEnd())
+        macro.addCommand(Stabilization(true, 0))
 
-        if (!isRunningMacro) {
-            isRunningMacro = true
-            var macro = MacroObject()
-
-            macro.addCommand(Stabilization(false, 0))
-            macro.addCommand(LoopStart(500))
-            macro.addCommand(RawMotor(RawMotor.DriveMode.REVERSE, 200, RawMotor.DriveMode.REVERSE, 200, 10))
-            macro.addCommand(Delay(10))
-            macro.addCommand(RawMotor(RawMotor.DriveMode.FORWARD, 200, RawMotor.DriveMode.FORWARD, 200, 10))
-            macro.addCommand(Delay(10))
-            macro.addCommand(LoopEnd())
-            macro.addCommand(Stabilization(true, 0))
-
-            //Send the macro to the robot and play
-            macro.mode = MacroObject.MacroObjectMode.Normal
-            macro.setRobot(mRobot.robot)
-            macro.playMacro()
-        } else {
-            isRunningMacro = false
-        }
+        return macro
     }
 
-    fun setRobotToDefaultState() {
+    fun changeColors(): MacroObject {
+        val macro = MacroObject()
 
-        mRobot.sendCommand(AbortMacroCommand())
-        mRobot.setLed(0.5f, 0.5f, 0.5f)
-        mRobot.enableStabilization(true)
-        mRobot.setBackLedBrightness(0.0f)
-        mRobot.stop()
+        macro.addCommand(LoopStart(15))
+        macro.addCommand(Fade(0, 255, 255, 100))
+        macro.addCommand(Delay(50))
+        macro.addCommand(Fade(255, 0, 255, 100))
+        macro.addCommand(Delay(50))
+        macro.addCommand(Fade(255, 255, 0, 100))
+        macro.addCommand(Delay(50))
+        macro.addCommand(LoopEnd())
+
+        return macro
+    }
+
+    fun figureEight(): MacroObject {
+        val macro = MacroObject()
+
+        macro.addCommand(Roll(1f, 0, 500))
+        macro.addCommand(LoopStart(10))
+        macro.addCommand(RotateOverTime(360, 500))
+        macro.addCommand(Delay(500))
+        macro.addCommand(RotateOverTime(-360, 500))
+        macro.addCommand(Delay(500))
+        macro.addCommand(LoopEnd())
+        macro.addCommand(Roll(1f, 0, 500))
+
+        return macro
+    }
+
+    fun setRobotToDefaultState(robot: ConvenienceRobot) {
+        robot.sendCommand(AbortMacroCommand())
+        robot.setLed(0.5f, 0.5f, 0.5f)
+        robot.enableStabilization(true)
+        robot.setBackLedBrightness(0.0f)
+        robot.stop()
     }
 }

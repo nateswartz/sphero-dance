@@ -9,16 +9,15 @@ import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.Gravity
 import android.widget.Button
-import android.widget.Toast
 import com.orbotix.ConvenienceRobot
+import com.orbotix.macro.MacroObject
 
 
 class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
 
     private var mBoundService: RobotProviderService? = null
-    private var mRobotActions: RobotActions? = null
+    private var mRobotActions = RobotActions()
     private var mRobot: ConvenienceRobot? = null
     private var mp = MediaPlayer()
     private var mIsBound = false
@@ -78,36 +77,63 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
     override fun handleRobotConnected(robot : ConvenienceRobot) {
         Log.e("MacrosActivity", "handleRobotConnected")
         mRobot = robot
-        mRobotActions = RobotActions(mRobot!!)
-        val runMacroButton = findViewById(R.id.run_macro) as Button
-        val spinButton = findViewById(R.id.spin_button) as Button
-        runMacroButton.isEnabled = true
-        spinButton.isEnabled = true
+        enableButtons()
     }
 
     override fun handleRobotDisconnected() {
         Log.e("MacrosActivity", "handleRobotDisconnected")
         mRobot = null
-        val runMacroButton = findViewById(R.id.run_macro) as Button
-        val spinButton = findViewById(R.id.spin_button) as Button
-        runMacroButton.isEnabled = false
-        spinButton.isEnabled = false
+        disableButtons()
     }
 
     private fun setupButtons() {
-        val runMacroButton = findViewById(R.id.run_macro) as Button
-        runMacroButton.setOnClickListener { mRobotActions!!.runMacro() }
+        val runMacroButton = findViewById(R.id.shake_button) as Button
+        runMacroButton.setOnClickListener { triggerMacro(mRobotActions::shake) }
 
         val spinButton = findViewById(R.id.spin_button) as Button
-        spinButton.setOnClickListener { mRobotActions!!.spin() }
+        spinButton.setOnClickListener { triggerMacro(mRobotActions::spin) }
+
+        val changeColorsButton = findViewById(R.id.change_colors_button) as Button
+        changeColorsButton.setOnClickListener { triggerMacro(mRobotActions::changeColors) }
+
+        val figureEightButton = findViewById(R.id.figure_eight_button) as Button
+        figureEightButton.setOnClickListener { triggerMacro(mRobotActions::figureEight) }
 
         if (mRobot?.isConnected == true) {
-            runMacroButton.isEnabled = true
-            spinButton.isEnabled = true
+            enableButtons()
         } else {
-            runMacroButton.isEnabled = false
-            spinButton.isEnabled = false
+            disableButtons()
         }
     }
 
+    private fun triggerMacro(actionProvider: () -> MacroObject) {
+        if (mRobot?.isConnected == true) {
+            mRobotActions.setRobotToDefaultState(mRobot!!)
+            val macro = actionProvider()
+            macro.setRobot(mRobot!!.robot)
+            macro.playMacro()
+        }
+    }
+
+    private fun enableButtons() {
+        val shakeButton = findViewById(R.id.shake_button) as Button
+        val spinButton = findViewById(R.id.spin_button) as Button
+        val changeColorsButton = findViewById(R.id.change_colors_button) as Button
+        val figureEightButton = findViewById(R.id.figure_eight_button) as Button
+        shakeButton.isEnabled = true
+        spinButton.isEnabled = true
+        changeColorsButton.isEnabled = true
+        figureEightButton.isEnabled = true
+    }
+
+    private fun disableButtons() {
+        val shakeButton = findViewById(R.id.shake_button) as Button
+        val spinButton = findViewById(R.id.spin_button) as Button
+        val changeColorsButton = findViewById(R.id.change_colors_button) as Button
+        val figureEightButton = findViewById(R.id.figure_eight_button) as Button
+        shakeButton.isEnabled = false
+        spinButton.isEnabled = false
+        changeColorsButton.isEnabled = false
+        figureEightButton.isEnabled = false
+    }
 }

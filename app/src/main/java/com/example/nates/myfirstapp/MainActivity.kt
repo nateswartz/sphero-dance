@@ -19,7 +19,7 @@ import android.widget.*
 class MainActivity : AppCompatActivity(), RobotServiceListener {
 
     private var mBoundService: RobotProviderService? = null
-    private var mRobotActions: RobotActions? = null
+    private var mRobotActions = RobotActions()
     private var mRobotDances = RobotDances()
     private var mRobot: ConvenienceRobot? = null
     private val clicks = HashMap<Int, Int>()
@@ -86,12 +86,11 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
 
     fun handleRobotAlreadyConnected(robot: ConvenienceRobot) {
         mRobot = robot
-        mRobotActions = RobotActions(mRobot!!)
         val macrosActivityButton = findViewById(R.id.robot_macros) as Button
         macrosActivityButton.isEnabled = true
     }
 
-    override fun handleRobotConnected(robot : ConvenienceRobot) {
+    override fun handleRobotConnected(robot: ConvenienceRobot) {
         Log.e("Activity", "handleRobotConnected")
         var toast = Toast.makeText(this@MainActivity, "Connected!",
                 Toast.LENGTH_LONG)
@@ -145,13 +144,13 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
             mp = MediaPlayer.create(applicationContext, resid)
             mp.start()
             if (mRobot?.isConnected == true) {
-                mRobotActions!!.setRobotToDefaultState()
+                mRobotActions.setRobotToDefaultState(mRobot!!)
                 val macro = song()
                 macro.setRobot(mRobot!!.robot)
                 macro.playMacro()
             }
         } else if (clicks.containsKey(resid) && clicks[resid]!! >= clicksToStop) {
-            mRobotActions!!.setRobotToDefaultState()
+            if (mRobot?.isConnected == true) mRobotActions.setRobotToDefaultState(mRobot!!)
             mp.stop()
             clicks.put(resid, 0)
         } else {
