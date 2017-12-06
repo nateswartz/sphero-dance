@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Button
 import com.orbotix.ConvenienceRobot
+import com.orbotix.common.RobotChangedStateListener
 import com.orbotix.macro.MacroObject
 
 
@@ -29,7 +30,7 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
             mIsBound = true
             mBoundService?.addListener(this@RobotMacrosActivity)
             if (mBoundService?.hasActiveRobot() == true) {
-                handleRobotConnected(mBoundService!!.getRobot())
+                handleRobotChange(mBoundService!!.getRobot(), RobotChangedStateListener.RobotChangedStateNotificationType.Online)
             }
         }
 
@@ -74,16 +75,19 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
         }
     }
 
-    override fun handleRobotConnected(robot : ConvenienceRobot) {
-        Log.e("MacrosActivity", "handleRobotConnected")
-        mRobot = robot
-        enableButtons()
-    }
-
-    override fun handleRobotDisconnected() {
-        Log.e("MacrosActivity", "handleRobotDisconnected")
-        mRobot = null
-        disableButtons()
+    override fun handleRobotChange(robot: ConvenienceRobot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
+        when (type) {
+            RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
+                Log.e("MacrosActivity", "handleRobotConnected")
+                mRobot = robot
+                enableButtons()
+            }
+            RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
+                Log.e("MacrosActivity", "handleRobotDisconnected")
+                mRobot = null
+                disableButtons()
+            }
+        }
     }
 
     private fun setupButtons() {

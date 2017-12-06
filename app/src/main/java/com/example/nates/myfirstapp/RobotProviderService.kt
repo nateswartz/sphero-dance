@@ -54,20 +54,12 @@ class RobotProviderService : Service(), RobotChangedStateListener {
 
     override fun handleRobotChangedState(robot: Robot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
         Log.e("Service", "handleRobotChangedState " + type)
-        when (type) {
-            RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
-                Log.e("Service", "handleRobotChangedState - Online")
-                this.mRobot = ConvenienceRobot(robot)
-                for (listener in mListeners) {
-                    listener.handleRobotConnected(this.mRobot!!)
-                }
-            }
-            RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
-                Log.e("Service", "handleRobotChangedState - Offline")
-                for (listener in mListeners) {
-                    listener.handleRobotDisconnected()
-                }
-            }
+        when (type)
+        {
+            RobotChangedStateListener.RobotChangedStateNotificationType.Online -> mRobot = ConvenienceRobot(robot)
+        }
+        for (listener in mListeners) {
+            listener.handleRobotChange(ConvenienceRobot(robot), type)
         }
     }
 

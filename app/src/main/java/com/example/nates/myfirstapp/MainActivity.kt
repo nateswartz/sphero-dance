@@ -14,6 +14,10 @@ import com.orbotix.macro.MacroObject
 import java.util.*
 import android.support.v7.app.AppCompatActivity
 import android.widget.*
+import android.bluetooth.BluetoothAdapter
+import android.content.IntentFilter
+import android.content.BroadcastReceiver
+import com.orbotix.common.RobotChangedStateListener
 
 
 class MainActivity : AppCompatActivity(), RobotServiceListener {
@@ -21,6 +25,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
     private var mBoundService: RobotProviderService? = null
     private var mRobotActions = RobotActions()
     private var mRobotDances = RobotDances()
+    private val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private var mRobot: ConvenienceRobot? = null
     private val clicks = HashMap<Int, Int>()
     private var mp = MediaPlayer()
@@ -35,11 +40,6 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
             mBoundService?.addListener(this@MainActivity)
             if (mBoundService?.hasActiveRobot() == true) {
                 handleRobotAlreadyConnected(mBoundService!!.getRobot())
-            } else {
-                var toast = Toast.makeText(this@MainActivity, "Connecting...",
-                        Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.TOP, 0, 0)
-                toast.show()
             }
         }
 
@@ -51,28 +51,54 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
         }
     }
 
+    private val mReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+
+            if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
+                val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+                        BluetoothAdapter.ERROR)
+                when (state) {
+                    BluetoothAdapter.STATE_OFF -> Log.e("Activity","Bluetooth off");
+                    BluetoothAdapter.STATE_TURNING_OFF -> Log.e("Activity","Turning Bluetooth off...")
+                    BluetoothAdapter.STATE_ON -> {
+                        Log.e("Activity","Bluetooth on")
+                        val intent = Intent(this@MainActivity, RobotProviderService::class.java)
+                        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+                    }
+                    BluetoothAdapter.STATE_TURNING_ON -> Log.e("Activity","Turning Bluetooth on...")
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e("Activity", "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupButtons()
+        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        registerReceiver(mReceiver, filter)
     }
 
     override fun onStart() {
         Log.e("Activity", "onStart")
+        if (!mBluetoothAdapter.isEnabled) {
+            mBluetoothAdapter.enable()
+        }else {
+            val intent = Intent(this@MainActivity, RobotProviderService::class.java)
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+        }
         super.onStart()
-
-        val intent = Intent(this, RobotProviderService::class.java)
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
         Log.e("Activity", "onStop")
+        super.onStop()
         if (mIsBound) {
             // Detach our existing connection.
             unbindService(mConnection)
         }
-        super.onStop()
     }
 
     override fun onDestroy() {
@@ -82,6 +108,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
             mp.stop()
             mp.release()
         }
+        unregisterReceiver(mReceiver);
     }
 
     fun handleRobotAlreadyConnected(robot: ConvenienceRobot) {
@@ -90,21 +117,30 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
         macrosActivityButton.isEnabled = true
     }
 
-    override fun handleRobotConnected(robot: ConvenienceRobot) {
-        Log.e("Activity", "handleRobotConnected")
-        var toast = Toast.makeText(this@MainActivity, "Connected!",
-                Toast.LENGTH_LONG)
-        toast.setGravity(Gravity.TOP, 0, 0)
-        toast.show()
-        handleRobotAlreadyConnected(robot)
-    }
-
-    override fun handleRobotDisconnected() {
-        Log.e("Activity", "handleRobotDisconnected")
-        mRobot = null
-        val macrosActivityButton = findViewById(R.id.robot_macros) as Button
-        macrosActivityButton.isEnabled = false
-    }
+    override fun handleRobotChange(robot: ConvenienceRobot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
+        when (type) {
+            RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
+                Log.e("Activity", "handleRobotConnected")
+                var toast = Toast.makeText(this@MainActivity, "Connected!",
+                        Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.TOP, 0, 0)
+                toast.show()
+                handleRobotAlreadyConnected(robot)
+            }
+            RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
+                Log.e("Activity", "handleRobotDisconnected")
+                mRobot = null
+                val macrosActivityButton = findViewById(R.id.robot_macros) as Button
+                macrosActivityButton.isEnabled = false
+            }
+            RobotChangedStateListener.RobotChangedStateNotificationType.Connecting -> {
+                Log.e("Activity", "handleRobotConnecting")
+                var toast = Toast.makeText(this@MainActivity, "Connecting..",
+                        Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.TOP, 0, 0)
+                toast.show()
+            }
+        }    }
 
     private fun setupButtons() {
         val macrosActivityButton = findViewById(R.id.robot_macros) as Button
