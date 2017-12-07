@@ -18,10 +18,12 @@ import com.orbotix.macro.MacroObject
 class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
 
     private var mBoundService: RobotProviderService? = null
+    private var mBoundBluetoothService: BluetoothControllerService? = null
     private var mRobotActions = RobotActions()
     private var mRobot: ConvenienceRobot? = null
     private var mp = MediaPlayer()
     private var mIsBound = false
+    private var mIsBluetoothBound = false
 
     private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -42,6 +44,20 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
         }
     }
 
+    private val mBluetoothConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            Log.e("Activity","onServiceConnected")
+            mBoundBluetoothService = (service as BluetoothControllerService.BluetoothBinder).service
+            mIsBluetoothBound = true
+        }
+
+        override fun onServiceDisconnected(className: ComponentName) {
+            Log.e("Activity","onServiceDisconnected")
+            mBoundBluetoothService = null
+            mIsBluetoothBound = false
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e("MacrosActivity", "onCreate")
         super.onCreate(savedInstanceState)
@@ -55,13 +71,18 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
 
         val intent = Intent(this, RobotProviderService::class.java)
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+
+        val btIntent = Intent(this, BluetoothControllerService::class.java)
+        bindService(btIntent, mBluetoothConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
         Log.e("MacrosActivity", "onStop")
         if (mIsBound) {
-            // Detach our existing connection.
             unbindService(mConnection)
+        }
+        if (mIsBluetoothBound) {
+            unbindService(mBluetoothConnection)
         }
         super.onStop()
     }

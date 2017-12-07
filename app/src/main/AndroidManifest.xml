@@ -28,6 +28,7 @@
             android:parentActivityName=".MainActivity" >
         </activity>
         <service android:name=".RobotProviderService"></service>
+        <service android:name=".BluetoothControllerService"></service>
     </application>
 
 </manifest>

@@ -14,23 +14,21 @@ import com.orbotix.macro.MacroObject
 import java.util.*
 import android.support.v7.app.AppCompatActivity
 import android.widget.*
-import android.bluetooth.BluetoothAdapter
-import android.content.IntentFilter
-import android.content.BroadcastReceiver
 import com.orbotix.common.RobotChangedStateListener
 
 
-class MainActivity : AppCompatActivity(), RobotServiceListener {
+class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothServiceListener {
 
     private var mBoundService: RobotProviderService? = null
+    private var mBoundBluetoothService: BluetoothControllerService? = null
     private var mRobotActions = RobotActions()
     private var mRobotDances = RobotDances()
-    private val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private var mRobot: ConvenienceRobot? = null
     private val clicks = HashMap<Int, Int>()
     private var mp = MediaPlayer()
     private val clicksToStop = 2
     private var mIsBound = false
+    private var mIsBluetoothBound = false
 
     private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -51,24 +49,22 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
         }
     }
 
-    private val mReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val action = intent.action
-
-            if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
-                val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                        BluetoothAdapter.ERROR)
-                when (state) {
-                    BluetoothAdapter.STATE_OFF -> Log.e("Activity","Bluetooth off");
-                    BluetoothAdapter.STATE_TURNING_OFF -> Log.e("Activity","Turning Bluetooth off...")
-                    BluetoothAdapter.STATE_ON -> {
-                        Log.e("Activity","Bluetooth on")
-                        val intent = Intent(this@MainActivity, RobotProviderService::class.java)
-                        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
-                    }
-                    BluetoothAdapter.STATE_TURNING_ON -> Log.e("Activity","Turning Bluetooth on...")
-                }
+    private val mBluetoothConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            Log.e("Activity","onServiceConnected")
+            mBoundBluetoothService = (service as BluetoothControllerService.BluetoothBinder).service
+            mIsBluetoothBound = true
+            mBoundBluetoothService?.addListener(this@MainActivity)
+            if (mBoundBluetoothService?.hasActiveBluetooth() == true) {
+                handleBluetoothChange(1)
             }
+        }
+
+        override fun onServiceDisconnected(className: ComponentName) {
+            Log.e("Activity","onServiceDisconnected")
+            mBoundBluetoothService = null
+            mIsBluetoothBound = false
+            mBoundBluetoothService?.removeListener(this@MainActivity)
         }
     }
 
@@ -77,27 +73,23 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupButtons()
-        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        registerReceiver(mReceiver, filter)
     }
 
     override fun onStart() {
         Log.e("Activity", "onStart")
-        if (!mBluetoothAdapter.isEnabled) {
-            mBluetoothAdapter.enable()
-        }else {
-            val intent = Intent(this@MainActivity, RobotProviderService::class.java)
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
-        }
+        val intent = Intent(this@MainActivity, BluetoothControllerService::class.java)
+        bindService(intent, mBluetoothConnection, Context.BIND_AUTO_CREATE)
         super.onStart()
     }
 
     override fun onStop() {
-        Log.e("Activity", "onStop")
         super.onStop()
+        Log.e("Activity", "onStop")
         if (mIsBound) {
-            // Detach our existing connection.
             unbindService(mConnection)
+        }
+        if (mIsBluetoothBound) {
+            unbindService(mBluetoothConnection)
         }
     }
 
@@ -108,7 +100,11 @@ class MainActivity : AppCompatActivity(), RobotServiceListener {
             mp.stop()
             mp.release()
         }
-        unregisterReceiver(mReceiver);
+    }
+
+    override fun handleBluetoothChange(type: Int) {
+        val intent = Intent(this@MainActivity, RobotProviderService::class.java)
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
     }
 
     fun handleRobotAlreadyConnected(robot: ConvenienceRobot) {
