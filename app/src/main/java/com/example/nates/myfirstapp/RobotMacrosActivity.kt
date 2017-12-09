@@ -18,6 +18,7 @@ import com.orbotix.common.ResponseListener
 import com.orbotix.common.Robot
 import com.orbotix.common.RobotChangedStateListener
 import com.orbotix.common.sensor.AccelerometerData
+import com.orbotix.common.sensor.AttitudeSensor
 import com.orbotix.common.sensor.SensorFlag
 import com.orbotix.macro.MacroObject
 import com.orbotix.response.DeviceResponse
@@ -155,7 +156,7 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
             displayAccelerometer(data.accelerometerData)
 
             //Extract attitude data (yaw, roll, pitch) from the sensor data
-            //displayAttitude(data.attitudeData)
+            displayAttitude(data.attitudeData)
 
             //Extract quaternion data from the sensor data
             //displayQuaterions(data.quaternion)
@@ -178,9 +179,23 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
         val mAccelZ = findViewById(R.id.accel_z) as TextView
 
         //Display the readings from the X, Y and Z components of the accelerometer
-        mAccelX.setText(String.format("%.4f", accelerometer.filteredAcceleration.x))
-        mAccelY.setText(String.format("%.4f", accelerometer.filteredAcceleration.y))
-        mAccelZ.setText(String.format("%.4f", accelerometer.filteredAcceleration.z))
+        mAccelX.setText(String.format("X Accel: %.4f", accelerometer.filteredAcceleration.x))
+        mAccelY.setText(String.format("Y Accel: %.4f", accelerometer.filteredAcceleration.y))
+        mAccelZ.setText(String.format("Z Accel: %.4f", accelerometer.filteredAcceleration.z))
+    }
+
+    private fun displayAttitude(attitude: AttitudeSensor?) {
+        if (attitude == null)
+            return
+
+        val mRollValue = findViewById(R.id.text_roll) as TextView
+        val mPitchValue = findViewById(R.id.text_pitch) as TextView
+        val mYawValue = findViewById(R.id.text_yaw) as TextView
+
+        //Display the pitch, roll and yaw from the attitude sensor
+        mRollValue.setText(String.format("Roll: %3d", attitude.roll) + "°")
+        mPitchValue.setText(String.format("Pitch: %3d", attitude.pitch) + "°")
+        mYawValue.setText(String.format("Yaw: %3d", attitude.yaw) + "°")
     }
 
     private fun setupButtons() {

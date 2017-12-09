@@ -33,6 +33,10 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
     private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             Log.e("Activity","onServiceConnected")
+            var toast = Toast.makeText(this@MainActivity, "Discovering...",
+                    Toast.LENGTH_LONG)
+            toast.setGravity(Gravity.TOP, 0, 0)
+            toast.show()
             mBoundService = (service as RobotProviderService.RobotBinder).service
             mIsBound = true
             mBoundService?.addListener(this@MainActivity)
