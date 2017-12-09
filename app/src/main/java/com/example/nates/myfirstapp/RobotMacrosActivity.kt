@@ -10,12 +10,21 @@ import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import com.orbotix.ConvenienceRobot
+import com.orbotix.async.AsyncMessage
+import com.orbotix.async.DeviceSensorAsyncMessage
+import com.orbotix.common.ResponseListener
+import com.orbotix.common.Robot
 import com.orbotix.common.RobotChangedStateListener
+import com.orbotix.common.sensor.AccelerometerData
+import com.orbotix.common.sensor.SensorFlag
 import com.orbotix.macro.MacroObject
+import com.orbotix.response.DeviceResponse
+import com.orbotix.subsystem.SensorControl
 
 
-class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
+class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseListener {
 
     private var mBoundService: RobotProviderService? = null
     private var mBoundBluetoothService: BluetoothControllerService? = null
@@ -102,6 +111,15 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
                 Log.e("MacrosActivity", "handleRobotConnected")
                 mRobot = robot
                 enableButtons()
+
+                val sensorFlag = SensorFlag(SensorFlag.SENSOR_FLAG_QUATERNION,
+                                            SensorFlag.SENSOR_FLAG_ACCELEROMETER_NORMALIZED,
+                                            SensorFlag.SENSOR_FLAG_GYRO_NORMALIZED,
+                                            SensorFlag.SENSOR_FLAG_MOTOR_BACKEMF_NORMALIZED,
+                                            SensorFlag.SENSOR_FLAG_ATTITUDE)
+                mRobot!!.enableSensors(sensorFlag, SensorControl.StreamingRate.STREAMING_RATE1)
+                mRobot!!.enableStabilization(false)
+                mRobot!!.addResponseListener(this)
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
                 Log.e("MacrosActivity", "handleRobotDisconnected")
@@ -109,6 +127,60 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
                 disableButtons()
             }
         }
+    }
+
+    override fun handleResponse(response: DeviceResponse?, robot: Robot?) {
+    }
+
+    override fun handleStringResponse(stringResponse: String?, robot: Robot?) {
+    }
+
+    override fun handleAsyncMessage(asyncMessage: AsyncMessage?, robot: Robot?) {
+        if (asyncMessage == null)
+            return
+
+        //Check the asyncMessage type to see if it is a DeviceSensor message
+        if (asyncMessage is DeviceSensorAsyncMessage) {
+            val message = asyncMessage as DeviceSensorAsyncMessage
+
+            if (message.sensorDataFrames == null
+                    || message.sensorDataFrames.isEmpty()
+                    || message.sensorDataFrames[0] == null)
+                return
+
+            //Retrieve DeviceSensorsData from the async message
+            val data = message.sensorDataFrames[0]
+
+            //Extract the accelerometer data from the sensor data
+            displayAccelerometer(data.accelerometerData)
+
+            //Extract attitude data (yaw, roll, pitch) from the sensor data
+            //displayAttitude(data.attitudeData)
+
+            //Extract quaternion data from the sensor data
+            //displayQuaterions(data.quaternion)
+
+            //Display back EMF data from left and right motors
+            //displayBackEMF(data.backEMFData.emfFiltered)
+
+            //Extract gyroscope data from the sensor data
+            //displayGyroscope(data.gyroData)
+        }
+    }
+
+    private fun displayAccelerometer(accelerometer: AccelerometerData?) {
+        if (accelerometer == null || accelerometer.filteredAcceleration == null) {
+            return
+        }
+
+        val mAccelX = findViewById(R.id.accel_x) as TextView
+        val mAccelY = findViewById(R.id.accel_y) as TextView
+        val mAccelZ = findViewById(R.id.accel_z) as TextView
+
+        //Display the readings from the X, Y and Z components of the accelerometer
+        mAccelX.setText(String.format("%.4f", accelerometer.filteredAcceleration.x))
+        mAccelY.setText(String.format("%.4f", accelerometer.filteredAcceleration.y))
+        mAccelZ.setText(String.format("%.4f", accelerometer.filteredAcceleration.z))
     }
 
     private fun setupButtons() {
@@ -134,6 +206,7 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener {
     private fun triggerMacro(actionProvider: () -> MacroObject) {
         if (mRobot?.isConnected == true) {
             mRobotActions.setRobotToDefaultState(mRobot!!)
+            mRobot!!.enableStabilization(true)
             val macro = actionProvider()
             macro.setRobot(mRobot!!.robot)
             macro.playMacro()
