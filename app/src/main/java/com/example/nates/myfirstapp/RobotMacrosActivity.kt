@@ -9,20 +9,19 @@ import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.widget.Button
-import android.widget.TextView
 import com.orbotix.ConvenienceRobot
 import com.orbotix.async.AsyncMessage
 import com.orbotix.async.DeviceSensorAsyncMessage
 import com.orbotix.common.ResponseListener
 import com.orbotix.common.Robot
 import com.orbotix.common.RobotChangedStateListener
-import com.orbotix.common.sensor.AccelerometerData
-import com.orbotix.common.sensor.AttitudeSensor
-import com.orbotix.common.sensor.SensorFlag
 import com.orbotix.macro.MacroObject
 import com.orbotix.response.DeviceResponse
 import com.orbotix.subsystem.SensorControl
+import kotlinx.android.synthetic.main.activity_robot_macros.*
+import android.widget.CompoundButton
+import android.R.id.toggle
+import com.orbotix.common.sensor.*
 
 
 class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseListener {
@@ -159,14 +158,28 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
             displayAttitude(data.attitudeData)
 
             //Extract quaternion data from the sensor data
-            //displayQuaterions(data.quaternion)
+            displayQuaterions(data.quaternion)
 
             //Display back EMF data from left and right motors
-            //displayBackEMF(data.backEMFData.emfFiltered)
+            displayBackEMF(data.backEMFData.emfFiltered)
 
             //Extract gyroscope data from the sensor data
-            //displayGyroscope(data.gyroData)
+            displayGyroscope(data.gyroData)
         }
+    }
+
+    private fun displayBackEMF(sensor: BackEMFSensor?) {
+        if (sensor == null)
+            return
+
+        //mLeftMotor.setText(sensor.leftMotorValue.toString())
+       // mRightMotor.setText(sensor.rightMotorValue.toString())
+    }
+
+    private fun displayGyroscope(data: GyroData) {
+        //mGyroX.setText(data.rotationRateFiltered.x.toString())
+        //mGyroY.setText(data.rotationRateFiltered.y.toString())
+        //mGyroZ.setText(data.rotationRateFiltered.z.toString())
     }
 
     private fun displayAccelerometer(accelerometer: AccelerometerData?) {
@@ -174,42 +187,41 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
             return
         }
 
-        val mAccelX = findViewById(R.id.accel_x) as TextView
-        val mAccelY = findViewById(R.id.accel_y) as TextView
-        val mAccelZ = findViewById(R.id.accel_z) as TextView
-
         //Display the readings from the X, Y and Z components of the accelerometer
-        mAccelX.setText(String.format("X Accel: %.4f", accelerometer.filteredAcceleration.x))
-        mAccelY.setText(String.format("Y Accel: %.4f", accelerometer.filteredAcceleration.y))
-        mAccelZ.setText(String.format("Z Accel: %.4f", accelerometer.filteredAcceleration.z))
+        text_accel_x.setText(String.format("X Accel: %.4f", accelerometer.filteredAcceleration.x))
+        text_accel_y.setText(String.format("Y Accel: %.4f", accelerometer.filteredAcceleration.y))
+        text_accel_z.setText(String.format("Z Accel: %.4f", accelerometer.filteredAcceleration.z))
     }
 
     private fun displayAttitude(attitude: AttitudeSensor?) {
         if (attitude == null)
             return
 
-        val mRollValue = findViewById(R.id.text_roll) as TextView
-        val mPitchValue = findViewById(R.id.text_pitch) as TextView
-        val mYawValue = findViewById(R.id.text_yaw) as TextView
-
         //Display the pitch, roll and yaw from the attitude sensor
-        mRollValue.setText(String.format("Roll: %3d", attitude.roll) + "°")
-        mPitchValue.setText(String.format("Pitch: %3d", attitude.pitch) + "°")
-        mYawValue.setText(String.format("Yaw: %3d", attitude.yaw) + "°")
+        text_roll.setText(String.format("Roll: %3d", attitude.roll) + "°")
+        text_pitch.setText(String.format("Pitch: %3d", attitude.pitch) + "°")
+        text_yaw.setText(String.format("Yaw: %3d", attitude.yaw) + "°")
+    }
+
+    private fun displayQuaterions(quaternion: QuaternionSensor?) {
+        if (quaternion == null)
+            return
+
+        //Display the four quaterions data
+        //mQ0Value.setText(String.format("%.5f", quaternion.getQ0()))
+        //mQ1Value.setText(String.format("%.5f", quaternion.getQ1()))
+        //mQ2Value.setText(String.format("%.5f", quaternion.getQ2()))
+        //mQ3Value.setText(String.format("%.5f", quaternion.getQ3()))
+
     }
 
     private fun setupButtons() {
-        val runMacroButton = findViewById(R.id.shake_button) as Button
-        runMacroButton.setOnClickListener { triggerMacro(mRobotActions::shake) }
-
-        val spinButton = findViewById(R.id.spin_button) as Button
-        spinButton.setOnClickListener { triggerMacro(mRobotActions::spin) }
-
-        val changeColorsButton = findViewById(R.id.change_colors_button) as Button
-        changeColorsButton.setOnClickListener { triggerMacro(mRobotActions::changeColors) }
-
-        val figureEightButton = findViewById(R.id.figure_eight_button) as Button
-        figureEightButton.setOnClickListener { triggerMacro(mRobotActions::figureEight) }
+        button_shake.setOnClickListener { triggerMacro(mRobotActions::shake) }
+        button_spin.setOnClickListener { triggerMacro(mRobotActions::spin) }
+        button_change_colors.setOnClickListener { triggerMacro(mRobotActions::changeColors) }
+        button_figure_eight.setOnClickListener { triggerMacro(mRobotActions::figureEight) }
+        toggle_stabilization.setOnCheckedChangeListener({ _, isChecked ->
+            mRobot?.enableStabilization(isChecked) })
 
         if (mRobot?.isConnected == true) {
             enableButtons()
@@ -221,7 +233,7 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
     private fun triggerMacro(actionProvider: () -> MacroObject) {
         if (mRobot?.isConnected == true) {
             mRobotActions.setRobotToDefaultState(mRobot!!)
-            mRobot!!.enableStabilization(true)
+            (toggle_stabilization as CompoundButton).isChecked = true
             val macro = actionProvider()
             macro.setRobot(mRobot!!.robot)
             macro.playMacro()
@@ -229,24 +241,18 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
     }
 
     private fun enableButtons() {
-        val shakeButton = findViewById(R.id.shake_button) as Button
-        val spinButton = findViewById(R.id.spin_button) as Button
-        val changeColorsButton = findViewById(R.id.change_colors_button) as Button
-        val figureEightButton = findViewById(R.id.figure_eight_button) as Button
-        shakeButton.isEnabled = true
-        spinButton.isEnabled = true
-        changeColorsButton.isEnabled = true
-        figureEightButton.isEnabled = true
+        button_shake.isEnabled = true
+        button_spin.isEnabled = true
+        button_change_colors.isEnabled = true
+        button_figure_eight.isEnabled = true
+        toggle_stabilization.isEnabled = true
     }
 
     private fun disableButtons() {
-        val shakeButton = findViewById(R.id.shake_button) as Button
-        val spinButton = findViewById(R.id.spin_button) as Button
-        val changeColorsButton = findViewById(R.id.change_colors_button) as Button
-        val figureEightButton = findViewById(R.id.figure_eight_button) as Button
-        shakeButton.isEnabled = false
-        spinButton.isEnabled = false
-        changeColorsButton.isEnabled = false
-        figureEightButton.isEnabled = false
+        button_shake.isEnabled = false
+        button_spin.isEnabled = false
+        button_change_colors.isEnabled = false
+        button_figure_eight.isEnabled = false
+        toggle_stabilization.isEnabled = false
     }
 }
