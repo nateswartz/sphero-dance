@@ -20,8 +20,10 @@ import com.orbotix.response.DeviceResponse
 import com.orbotix.subsystem.SensorControl
 import kotlinx.android.synthetic.main.activity_robot_macros.*
 import android.widget.CompoundButton
-import android.R.id.toggle
 import com.orbotix.common.sensor.*
+import android.widget.ArrayAdapter
+
+
 
 
 class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseListener {
@@ -33,6 +35,16 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
     private var mp = MediaPlayer()
     private var mIsBound = false
     private var mIsBluetoothBound = false
+
+    private val dataFormat = arrayListOf<String>("X Accel: %.4f",
+                                                 "Y Accel: %.4f",
+                                                 "Z Accel: %.4f",
+                                                 "Roll: %3d°",
+                                                 "Pitch: %3d°",
+                                                 "Yaw: %3d°")
+
+    private val dataBinding = Array<String>(6) {_ -> ""}
+    private lateinit var dataAdapter: ArrayAdapter<String>
 
     private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -72,6 +84,10 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_robot_macros)
         setupButtons()
+
+        dataAdapter = ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, dataBinding)
+        list_view_data.setAdapter(dataAdapter)
     }
 
     override fun onStart() {
@@ -187,20 +203,20 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
             return
         }
 
-        //Display the readings from the X, Y and Z components of the accelerometer
-        text_accel_x.setText(String.format("X Accel: %.4f", accelerometer.filteredAcceleration.x))
-        text_accel_y.setText(String.format("Y Accel: %.4f", accelerometer.filteredAcceleration.y))
-        text_accel_z.setText(String.format("Z Accel: %.4f", accelerometer.filteredAcceleration.z))
+        dataBinding[0] = String.format(dataFormat[0], accelerometer.filteredAcceleration.x)
+        dataBinding[1] = String.format(dataFormat[1], accelerometer.filteredAcceleration.y)
+        dataBinding[2] = String.format(dataFormat[2], accelerometer.filteredAcceleration.z)
+        dataAdapter.notifyDataSetChanged()
     }
 
     private fun displayAttitude(attitude: AttitudeSensor?) {
         if (attitude == null)
             return
 
-        //Display the pitch, roll and yaw from the attitude sensor
-        text_roll.setText(String.format("Roll: %3d", attitude.roll) + "°")
-        text_pitch.setText(String.format("Pitch: %3d", attitude.pitch) + "°")
-        text_yaw.setText(String.format("Yaw: %3d", attitude.yaw) + "°")
+        dataBinding[3] = String.format(dataFormat[3], attitude.roll)
+        dataBinding[4] = String.format(dataFormat[4], attitude.pitch)
+        dataBinding[5] = String.format(dataFormat[5], attitude.yaw)
+        dataAdapter.notifyDataSetChanged()
     }
 
     private fun displayQuaterions(quaternion: QuaternionSensor?) {
