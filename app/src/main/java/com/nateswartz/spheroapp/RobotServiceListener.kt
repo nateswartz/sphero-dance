@@ -1,4 +1,4 @@
-package com.example.nates.myfirstapp
+package com.nateswartz.spheroapp
 
 import com.orbotix.ConvenienceRobot
 import com.orbotix.common.RobotChangedStateListener

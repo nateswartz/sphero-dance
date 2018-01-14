@@ -1,4 +1,4 @@
-package com.example.nates.myfirstapp
+package com.nateswartz.spheroapp
 
 import android.content.ComponentName
 import android.content.Context

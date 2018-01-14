@@ -1,4 +1,4 @@
-package com.example.nates.myfirstapp
+package com.nateswartz.spheroapp
 
 import com.orbotix.macro.MacroObject
 import com.orbotix.macro.cmd.*
