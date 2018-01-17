@@ -22,8 +22,7 @@ import kotlinx.android.synthetic.main.activity_robot_macros.*
 import android.widget.CompoundButton
 import com.orbotix.common.sensor.*
 import android.widget.ArrayAdapter
-
-
+import com.orbotix.command.GetPowerStateCommand
 
 
 class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseListener {
@@ -41,9 +40,12 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
                                                  "Z Accel: %.4f",
                                                  "Roll: %3d°",
                                                  "Pitch: %3d°",
-                                                 "Yaw: %3d°")
+                                                 "Yaw: %3d°",
+                                                 "Charges: %s",
+                                                 "Battery: %s",
+                                                 "Seconds Since Charge: %s")
 
-    private val dataBinding = Array<String>(6) {_ -> ""}
+    private val dataBinding = Array<String>(9) {_ -> ""}
     private lateinit var dataAdapter: ArrayAdapter<String>
 
     private val mConnection = object : ServiceConnection {
@@ -127,7 +129,6 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
                 Log.e("MacrosActivity", "handleRobotConnected")
                 mRobot = robot
                 enableButtons()
-
                 val sensorFlag = SensorFlag(SensorFlag.SENSOR_FLAG_QUATERNION,
                                             SensorFlag.SENSOR_FLAG_ACCELEROMETER_NORMALIZED,
                                             SensorFlag.SENSOR_FLAG_GYRO_NORMALIZED,
@@ -146,18 +147,47 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
     }
 
     override fun handleResponse(response: DeviceResponse?, robot: Robot?) {
+        //Log.e("Sphero", "handleResponse")
+        //Log.e("Sphero", response!!.commandId.toString())
+        //Log.e("Sphero", response!!.responseCode.toString())
+        //Log.e("Sphero", response!!.data.joinToString())
+        if (response!!.commandId.toInt() == 32) {
+            try {
+                val powerState = when (response.data[1].toInt()) {
+                    1 -> "Charging"
+                    2 -> "OK"
+                    3 -> "Low"
+                    4 -> "Critical"
+                    else -> "Unknown"
+                }
+                val batteryVoltage = ((response.data[2].toInt() and 0xff) shl 8) or (response.data[3].toInt() and 0xff)
+                val lifetimeCharges = ((response.data[4].toInt() and 0xff) shl 8) or (response.data[5].toInt() and 0xff)
+                val secondsAwake = ((response.data[6].toInt() and 0xff) shl 8) or (response.data[7].toInt() and 0xff)
+
+                Log.e("Sphero", "Current battery state is $powerState")
+                Log.e("Sphero", "Current battery voltage - $batteryVoltage volts")
+                Log.e("Sphero", "Sphero has been charged $lifetimeCharges times")
+                Log.e("Sphero", "Sphero has been active $secondsAwake seconds since last charge")
+
+                dataBinding[6] = String.format(dataFormat[6], lifetimeCharges)
+                dataBinding[7] = String.format(dataFormat[7], powerState)
+                dataBinding[8] = String.format(dataFormat[8], secondsAwake)
+                dataAdapter.notifyDataSetChanged()
+            } catch (e: Exception) {}
+        }
     }
 
     override fun handleStringResponse(stringResponse: String?, robot: Robot?) {
     }
 
     override fun handleAsyncMessage(asyncMessage: AsyncMessage?, robot: Robot?) {
+        mRobot!!.sendCommand(GetPowerStateCommand())
         if (asyncMessage == null)
             return
 
         //Check the asyncMessage type to see if it is a DeviceSensor message
         if (asyncMessage is DeviceSensorAsyncMessage) {
-            val message = asyncMessage as DeviceSensorAsyncMessage
+            val message = asyncMessage
 
             if (message.sensorDataFrames == null
                     || message.sensorDataFrames.isEmpty()
