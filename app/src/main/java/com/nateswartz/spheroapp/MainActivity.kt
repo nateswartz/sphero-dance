@@ -13,7 +13,12 @@ import com.orbotix.ConvenienceRobot
 import com.orbotix.macro.MacroObject
 import java.util.*
 import android.support.v7.app.AppCompatActivity
-import android.widget.*
+import android.support.v7.widget.Toolbar
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.Toast
 import com.orbotix.common.RobotChangedStateListener
 
 
@@ -39,7 +44,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
             if (mBoundService?.hasActiveRobot() == true) {
                 handleRobotAlreadyConnected(mBoundService!!.getRobot())
             } else {
-                var toast = Toast.makeText(this@MainActivity, "Discovering...",
+                val toast = Toast.makeText(this@MainActivity, "Discovering...",
                         Toast.LENGTH_LONG)
                 toast.setGravity(Gravity.TOP, 0, 0)
                 toast.show()
@@ -73,10 +78,34 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.toolbar, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_settings -> {
+                // User chose the "Settings" item, show the app settings UI...
+                Log.e("Activity", "Menu clicked")
+                val intent = Intent(this, RobotMacrosActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+            else ->
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e("Activity", "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
+        setSupportActionBar(myToolbar)
         setupButtons()
     }
 

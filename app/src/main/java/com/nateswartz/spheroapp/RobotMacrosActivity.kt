@@ -8,6 +8,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import android.util.Log
 import com.orbotix.ConvenienceRobot
 import com.orbotix.async.AsyncMessage
@@ -85,6 +86,8 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
         Log.e("MacrosActivity", "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_robot_macros)
+        val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
+        setSupportActionBar(myToolbar)
         setupButtons()
 
         dataAdapter = ArrayAdapter<String>(this,
