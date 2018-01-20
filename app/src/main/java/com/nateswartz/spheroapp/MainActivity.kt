@@ -78,6 +78,16 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
         }
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        if (mRobot == null) {
+            menu.findItem(R.id.action_settings).setEnabled(false)
+        } else
+        {
+            menu.findItem(R.id.action_settings).setEnabled(true)
+        }
+        return true
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.toolbar, menu)
@@ -143,8 +153,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
 
     fun handleRobotAlreadyConnected(robot: ConvenienceRobot) {
         mRobot = robot
-        val macrosActivityButton = findViewById(R.id.robot_macros) as Button
-        macrosActivityButton.isEnabled = true
+        invalidateOptionsMenu()
     }
 
     override fun handleRobotChange(robot: ConvenienceRobot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
@@ -160,8 +169,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
                 Log.e("Activity", "handleRobotDisconnected")
                 mRobot = null
-                val macrosActivityButton = findViewById(R.id.robot_macros) as Button
-                macrosActivityButton.isEnabled = false
+                invalidateOptionsMenu()
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Connecting -> {
                 Log.e("Activity", "handleRobotConnecting")
@@ -173,13 +181,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
         }    }
 
     private fun setupButtons() {
-        val macrosActivityButton = findViewById(R.id.robot_macros) as Button
-        macrosActivityButton.setOnClickListener {
-            val intent = Intent(this, RobotMacrosActivity::class.java)
-            startActivity(intent)
-        }
-
-        macrosActivityButton.isEnabled = false
+        invalidateOptionsMenu()
 
         mapButton(R.id.play_checkup, mRobotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
         mapButton(R.id.play_daniel, mRobotDances::danielTigerDance, R.raw.daniel_tiger_theme)
