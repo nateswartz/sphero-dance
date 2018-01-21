@@ -79,12 +79,9 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        if (mRobot == null) {
-            menu.findItem(R.id.action_settings).setEnabled(false)
-        } else
-        {
-            menu.findItem(R.id.action_settings).setEnabled(true)
-        }
+        val item = menu.findItem(R.id.action_settings)
+        item.isVisible = mRobot != null
+        item.isEnabled = mRobot != null
         return true
     }
 
