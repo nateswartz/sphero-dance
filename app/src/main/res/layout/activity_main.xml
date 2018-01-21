@@ -26,56 +26,37 @@
 
             <ImageButton
                 android:id="@+id/play_checkup"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="1dp"
-                android:layout_weight="3"
+                style="@style/ImageButton"
                 android:background="#1a8e1a"
-                android:elevation="0dp"
                 android:src="@drawable/docmcstuffins" />
 
             <ImageButton
                 android:id="@+id/play_daniel"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="1dp"
-                android:layout_weight="3"
+                style="@style/ImageButton"
                 android:background="#01AAEB"
                 android:src="@drawable/daniel_tiger" />
 
             <ImageButton
                 android:id="@+id/play_sesame"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="1dp"
-                android:layout_weight="3"
+                style="@style/ImageButton"
                 android:background="#fff000"
                 android:src="@drawable/sesame_street" />
 
             <ImageButton
                 android:id="@+id/play_elmo"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="1dp"
-                android:layout_weight="3"
+                style="@style/ImageButton"
                 android:background="#ff00ff"
                 android:src="@drawable/elmos_song" />
 
             <ImageButton
                 android:id="@+id/play_head"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="1dp"
-                android:layout_weight="3"
+                style="@style/ImageButton"
                 android:background="#5d1a5f"
                 android:src="@drawable/head_shoulders_knees_toes" />
 
             <ImageButton
                 android:id="@+id/play_spider"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="1dp"
-                android:layout_weight="3"
+                style="@style/ImageButton"
                 android:background="#dc6d0c"
                 android:src="@drawable/itsybitsyspider" />
 

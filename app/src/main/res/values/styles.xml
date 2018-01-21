@@ -14,4 +14,13 @@
         <item name="android:textColorSecondary">@android:color/white</item>
         <item name="actionMenuTextColor">@android:color/white</item>
     </style>
+
+    <!-- Image Button -->
+    <style name="ImageButton" parent="@android:style/Theme.Material">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_margin">1dp</item>
+        <item name="android:layout_weight">3</item>
+        <item name="android:elevation">0dp</item>
+    </style>
 </resources>
