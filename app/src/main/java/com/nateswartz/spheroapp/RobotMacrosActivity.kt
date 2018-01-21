@@ -7,6 +7,7 @@ import android.content.ServiceConnection
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.IBinder
+import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
@@ -88,6 +89,13 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
         setContentView(R.layout.activity_robot_macros)
         val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
         setSupportActionBar(myToolbar)
+
+        // Get a support ActionBar corresponding to this toolbar
+        val ab = supportActionBar
+
+        // Enable the Up button
+        ab!!.setDisplayHomeAsUpEnabled(true)
+
         setupButtons()
 
         dataAdapter = ArrayAdapter<String>(this,
