@@ -60,6 +60,14 @@
                 android:background="#dc6d0c"
                 android:src="@drawable/itsybitsyspider" />
 
+            <ImageButton
+                android:id="@+id/play_cookie"
+                style="@style/ImageButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#01AAEB"
+                android:src="@drawable/cookie_monster" />
+
         </LinearLayout>
 
     </ScrollView>

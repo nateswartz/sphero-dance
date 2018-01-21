@@ -18,9 +18,7 @@
     <!-- Image Button -->
     <style name="ImageButton" parent="@android:style/Theme.Material">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:layout_margin">1dp</item>
-        <item name="android:layout_weight">3</item>
-        <item name="android:elevation">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:scaleType">fitCenter</item>
     </style>
 </resources>
