@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
             } else {
                 val toast = Toast.makeText(this@MainActivity, "Discovering...",
                         Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.TOP, 0, 0)
+                toast.setGravity(Gravity.BOTTOM, 0, 0)
                 toast.show()
             }
         }
@@ -162,7 +162,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
                 Log.e("Activity", "handleRobotConnected")
                 var toast = Toast.makeText(this@MainActivity, "Connected!",
                         Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.TOP, 0, 0)
+                toast.setGravity(Gravity.BOTTOM, 0, 0)
                 toast.show()
                 handleRobotAlreadyConnected(robot)
             }
@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
                 Log.e("Activity", "handleRobotConnecting")
                 var toast = Toast.makeText(this@MainActivity, "Connecting..",
                         Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.TOP, 0, 0)
+                toast.setGravity(Gravity.BOTTOM, 0, 0)
                 toast.show()
             }
         }    }
