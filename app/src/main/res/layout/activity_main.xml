@@ -68,6 +68,14 @@
                 android:background="#01AAEB"
                 android:src="@drawable/cookie_monster" />
 
+            <ImageButton
+                android:id="@+id/play_rubber_ducky"
+                style="@style/ImageButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#fff000"
+                android:src="@drawable/rubber_ducky" />
+
         </LinearLayout>
 
     </ScrollView>

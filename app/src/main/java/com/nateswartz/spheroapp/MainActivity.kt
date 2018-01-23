@@ -187,6 +187,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
         mapButton(R.id.play_spider, mRobotDances::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider)
         mapButton(R.id.play_head, mRobotDances::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes)
         mapButton(R.id.play_cookie, mRobotDances::cookieDance, R.raw.c_is_for_cookie)
+        mapButton(R.id.play_rubber_ducky, mRobotDances::rubberDuckieDance, R.raw.rubber_duckie)
     }
 
     private fun recordClick(buttonId: Int) {
