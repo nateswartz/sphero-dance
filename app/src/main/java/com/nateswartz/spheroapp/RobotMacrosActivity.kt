@@ -1,5 +1,6 @@
 package com.nateswartz.spheroapp
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -7,9 +8,6 @@ import android.content.ServiceConnection
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.IBinder
-import android.support.v7.app.ActionBar
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.util.Log
 import com.orbotix.ConvenienceRobot
 import com.orbotix.async.AsyncMessage
@@ -24,10 +22,11 @@ import kotlinx.android.synthetic.main.activity_robot_macros.*
 import android.widget.CompoundButton
 import com.orbotix.common.sensor.*
 import android.widget.ArrayAdapter
+import android.widget.Toolbar
 import com.orbotix.command.GetPowerStateCommand
 
 
-class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseListener {
+class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
 
     private var mBoundService: RobotProviderService? = null
     private var mBoundBluetoothService: BluetoothControllerService? = null
@@ -88,10 +87,10 @@ class RobotMacrosActivity : AppCompatActivity(), RobotServiceListener, ResponseL
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_robot_macros)
         val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
-        setSupportActionBar(myToolbar)
+        setActionBar(myToolbar)
 
         // Get a support ActionBar corresponding to this toolbar
-        val ab = supportActionBar
+        val ab = actionBar
 
         // Enable the Up button
         ab!!.setDisplayHomeAsUpEnabled(true)

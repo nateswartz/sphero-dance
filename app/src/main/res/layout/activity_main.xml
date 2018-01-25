@@ -5,14 +5,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
+    <android.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimaryDark"
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="?android:attr/navigationBarColor"
         android:elevation="4dp"
-        app:theme="@style/ToolBarStyle"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        android:minHeight="?android:attr/actionBarSize" />
 
     <ScrollView
         android:layout_width="match_parent"

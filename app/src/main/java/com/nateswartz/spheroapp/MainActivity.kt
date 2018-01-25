@@ -1,5 +1,6 @@
 package com.nateswartz.spheroapp
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -12,17 +13,15 @@ import android.view.Gravity
 import com.orbotix.ConvenienceRobot
 import com.orbotix.macro.MacroObject
 import java.util.*
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
+import android.widget.Toolbar
 import com.orbotix.common.RobotChangedStateListener
 
 
-class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothServiceListener {
+class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener {
 
     private var mBoundService: RobotProviderService? = null
     private var mBoundBluetoothService: BluetoothControllerService? = null
@@ -112,7 +111,7 @@ class MainActivity : AppCompatActivity(), RobotServiceListener, BluetoothService
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
-        setSupportActionBar(myToolbar)
+        setActionBar(myToolbar)
         setupButtons()
     }
 
