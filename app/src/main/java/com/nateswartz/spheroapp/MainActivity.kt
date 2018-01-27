@@ -15,10 +15,16 @@ import com.orbotix.macro.MacroObject
 import java.util.*
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageButton
 import android.widget.Toast
 import android.widget.Toolbar
 import com.orbotix.common.RobotChangedStateListener
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemClickListener
+import android.widget.GridView
+
+
 
 
 class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener {
@@ -45,7 +51,7 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
             } else {
                 val toast = Toast.makeText(this@MainActivity, "Discovering...",
                         Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.BOTTOM, 0, 0)
+                toast.setGravity(Gravity.BOTTOM, 0, 10)
                 toast.show()
             }
         }
@@ -112,6 +118,30 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
         setContentView(R.layout.activity_main)
         val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
         setActionBar(myToolbar)
+
+
+        val gridview = findViewById<View>(R.id.gridview) as GridView
+        gridview.adapter = ImageAdapter(this)
+
+        gridview.onItemClickListener = object : OnItemClickListener {
+            override fun onItemClick(parent: AdapterView<*>, v: View,
+                            position: Int, id: Long) {
+                when (position) {
+                    0 -> triggerSong(mRobotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
+                    1 -> triggerSong(mRobotDances::danielTigerDance, R.raw.daniel_tiger_theme)
+                    2 -> triggerSong(mRobotDances::sesameStreetDance, R.raw.seasame_street_theme)
+                    3 -> triggerSong(mRobotDances::elmosSongDance, R.raw.elmos_song)
+                    4 -> triggerSong(mRobotDances::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider)
+                    5 -> triggerSong(mRobotDances::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes)
+                    6 -> triggerSong(mRobotDances::cookieDance, R.raw.c_is_for_cookie)
+                    7 -> triggerSong(mRobotDances::rubberDuckieDance, R.raw.rubber_duckie)
+                }
+
+                Toast.makeText(this@MainActivity, "" + position,
+                        Toast.LENGTH_SHORT).show()
+            }
+        }
+
         setupButtons()
     }
 
@@ -158,7 +188,7 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
                 Log.e("Activity", "handleRobotConnected")
                 var toast = Toast.makeText(this@MainActivity, "Connected!",
                         Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.BOTTOM, 0, 0)
+                toast.setGravity(Gravity.BOTTOM, 0, 10)
                 toast.show()
                 handleRobotAlreadyConnected(robot)
             }
@@ -171,7 +201,7 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
                 Log.e("Activity", "handleRobotConnecting")
                 var toast = Toast.makeText(this@MainActivity, "Connecting..",
                         Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.BOTTOM, 0, 0)
+                toast.setGravity(Gravity.BOTTOM, 0, 10)
                 toast.show()
             }
         }    }
