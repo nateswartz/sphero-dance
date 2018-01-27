@@ -7,11 +7,7 @@
 
     <android.widget.Toolbar
         android:id="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:background="?android:attr/colorPrimary"
-        android:elevation="4dp"
-        android:minHeight="?android:attr/actionBarSize" />
+        style="@style/Toolbar" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -21,42 +17,43 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_margin="4dp">
 
             <ImageButton
                 android:id="@+id/play_checkup"
                 style="@style/ImageButton"
-                android:background="#1a8e1a"
+                android:background="@drawable/ripple"
                 android:src="@drawable/docmcstuffins" />
 
             <ImageButton
                 android:id="@+id/play_daniel"
                 style="@style/ImageButton"
-                android:background="#01AAEB"
+                android:background="@drawable/ripple"
                 android:src="@drawable/daniel_tiger" />
 
             <ImageButton
                 android:id="@+id/play_sesame"
                 style="@style/ImageButton"
-                android:background="#fff000"
+                android:background="@drawable/ripple"
                 android:src="@drawable/sesame_street" />
 
             <ImageButton
                 android:id="@+id/play_elmo"
                 style="@style/ImageButton"
-                android:background="#ff00ff"
+                android:background="@drawable/ripple"
                 android:src="@drawable/elmos_song" />
 
             <ImageButton
                 android:id="@+id/play_head"
                 style="@style/ImageButton"
-                android:background="#5d1a5f"
+                android:background="@drawable/ripple"
                 android:src="@drawable/head_shoulders_knees_toes" />
 
             <ImageButton
                 android:id="@+id/play_spider"
                 style="@style/ImageButton"
-                android:background="#dc6d0c"
+                android:background="@drawable/ripple"
                 android:src="@drawable/itsybitsyspider" />
 
             <ImageButton
@@ -64,7 +61,7 @@
                 style="@style/ImageButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#01AAEB"
+                android:background="@drawable/ripple"
                 android:src="@drawable/cookie_monster" />
 
             <ImageButton
@@ -72,7 +69,7 @@
                 style="@style/ImageButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#fff000"
+                android:background="@drawable/ripple"
                 android:src="@drawable/rubber_ducky" />
 
         </LinearLayout>

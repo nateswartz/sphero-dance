@@ -8,11 +8,7 @@
 
     <android.widget.Toolbar
         android:id="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:background="?android:attr/colorPrimary"
-        android:elevation="4dp"
-        android:minHeight="?android:attr/actionBarSize" />
+        style="@style/Toolbar" />
 
     <android.support.constraint.ConstraintLayout
 
