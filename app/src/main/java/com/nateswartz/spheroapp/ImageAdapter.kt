@@ -1,6 +1,11 @@
 package com.nateswartz.spheroapp
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.content.res.Resources
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.RippleDrawable
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -47,8 +52,9 @@ class ImageAdapter(private val mContext: Context) : BaseAdapter() {
         } else {
             imageView = (convertView as ImageView?)!!
         }
-
-        imageView.setImageResource(imgIds[position])
+        val image = ContextCompat.getDrawable(mContext, imgIds[position])
+        val rippledImage = RippleDrawable(ColorStateList.valueOf(ContextCompat.getColor(mContext, R.color.primaryLightColor)), image, null)
+        imageView.setImageDrawable(rippledImage)
         return imageView
     }
 }
