@@ -20,7 +20,6 @@ import android.widget.ImageButton
 import android.widget.Toast
 import android.widget.Toolbar
 import com.orbotix.common.RobotChangedStateListener
-import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.GridView
 
@@ -36,7 +35,7 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
     private var mRobot: ConvenienceRobot? = null
     private val clicks = HashMap<Int, Int>()
     private var mp = MediaPlayer()
-    private val clicksToStop = 2
+    private val clicksToStop = 0
     private var mIsBound = false
     private var mIsBluetoothBound = false
 
@@ -97,18 +96,18 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             R.id.action_settings -> {
                 // User chose the "Settings" item, show the app settings UI...
                 Log.e("Activity", "Menu clicked")
                 val intent = Intent(this, RobotMacrosActivity::class.java)
                 startActivity(intent)
-                return true
+                true
             }
             else ->
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item)
+                super.onOptionsItemSelected(item)
         }
     }
 
@@ -123,22 +122,16 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
         val gridview = findViewById<View>(R.id.gridview) as GridView
         gridview.adapter = ImageAdapter(this)
 
-        gridview.onItemClickListener = object : OnItemClickListener {
-            override fun onItemClick(parent: AdapterView<*>, v: View,
-                            position: Int, id: Long) {
-                when (position) {
-                    0 -> triggerSong(mRobotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
-                    1 -> triggerSong(mRobotDances::danielTigerDance, R.raw.daniel_tiger_theme)
-                    2 -> triggerSong(mRobotDances::sesameStreetDance, R.raw.seasame_street_theme)
-                    3 -> triggerSong(mRobotDances::elmosSongDance, R.raw.elmos_song)
-                    4 -> triggerSong(mRobotDances::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider)
-                    5 -> triggerSong(mRobotDances::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes)
-                    6 -> triggerSong(mRobotDances::cookieDance, R.raw.c_is_for_cookie)
-                    7 -> triggerSong(mRobotDances::rubberDuckieDance, R.raw.rubber_duckie)
-                }
-
-                Toast.makeText(this@MainActivity, "" + position,
-                        Toast.LENGTH_SHORT).show()
+        gridview.onItemClickListener = OnItemClickListener { parent, _, position, _ ->
+            when ((parent.adapter as ImageAdapter).imgIds[position]) {
+                R.drawable.grid_docmcstuffins -> triggerSong(mRobotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
+                R.drawable.grid_daniel_tiger -> triggerSong(mRobotDances::danielTigerDance, R.raw.daniel_tiger_theme)
+                R.drawable.grid_sesame_street -> triggerSong(mRobotDances::sesameStreetDance, R.raw.seasame_street_theme)
+                R.drawable.grid_elmos_song -> triggerSong(mRobotDances::elmosSongDance, R.raw.elmos_song)
+                R.drawable.grid_itsybitsyspider -> triggerSong(mRobotDances::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider)
+                R.drawable.grid_head_shoulders_knees_toes -> triggerSong(mRobotDances::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes)
+                R.drawable.grid_cookie_monster -> triggerSong(mRobotDances::cookieDance, R.raw.c_is_for_cookie)
+                R.drawable.grid_rubber_ducky -> triggerSong(mRobotDances::rubberDuckieDance, R.raw.rubber_duckie)
             }
         }
 
@@ -186,7 +179,7 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
         when (type) {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
                 Log.e("Activity", "handleRobotConnected")
-                var toast = Toast.makeText(this@MainActivity, "Connected!",
+                val toast = Toast.makeText(this@MainActivity, "Connected!",
                         Toast.LENGTH_LONG)
                 toast.setGravity(Gravity.BOTTOM, 0, 10)
                 toast.show()
@@ -199,10 +192,12 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Connecting -> {
                 Log.e("Activity", "handleRobotConnecting")
-                var toast = Toast.makeText(this@MainActivity, "Connecting..",
+                val toast = Toast.makeText(this@MainActivity, "Connecting..",
                         Toast.LENGTH_LONG)
                 toast.setGravity(Gravity.BOTTOM, 0, 10)
                 toast.show()
+            }
+            else -> {
             }
         }    }
 
@@ -223,15 +218,15 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
         var keyFound = false
         for (key in clicks.keys) {
             if (key == buttonId) {
-                clicks.put(key, clicks[key]!! + 1)
+                clicks[key] = clicks[key]!! + 1
                 keyFound = true
             } else {
-                clicks.put(key, 0)
+                clicks[key] = 0
             }
         }
 
         if (!keyFound) {
-            clicks.put(buttonId, 0)
+            clicks[buttonId] = 0
         }
     }
 
@@ -248,7 +243,7 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
         } else if (clicks.containsKey(resid) && clicks[resid]!! >= clicksToStop) {
             if (mRobot?.isConnected == true) mRobotActions.setRobotToDefaultState(mRobot!!)
             mp.stop()
-            clicks.put(resid, 0)
+            clicks[resid] = 0
         } else {
             recordClick(resid)
         }
@@ -256,7 +251,7 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
 
     private fun mapButton(button: Int, dance: () -> MacroObject, song: Int)
     {
-        val playSong = findViewById(button) as ImageButton
+        val playSong = findViewById<ImageButton>(button)
         playSong.setOnClickListener { triggerSong(dance, song) }
     }
 }

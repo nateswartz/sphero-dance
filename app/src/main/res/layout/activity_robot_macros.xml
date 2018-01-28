@@ -15,16 +15,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <Button
             android:id="@+id/button_spin"
+            style="@android:style/Widget.Material.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
+            android:elevation="2dp"
             android:padding="36dp"
             android:text="Spin"
-            android:elevation="2dp"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintHorizontal_bias="0.324"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,42 +34,46 @@
 
         <Button
             android:id="@+id/button_shake"
+            style="@android:style/Widget.Material.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
+            android:elevation="2dp"
             android:padding="36dp"
             android:text="Shake"
-            android:elevation="2dp"
+            android:textAppearance="@android:style/TextAppearance.Material.Widget.Button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/button_change_colors"
+            style="@android:style/Widget.Material.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
+            android:elevation="2dp"
             android:padding="36dp"
             android:text="Change Colors"
-            android:elevation="2dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/button_shake" />
 
         <Button
             android:id="@+id/button_figure_eight"
+            style="@android:style/Widget.Material.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
+            android:elevation="2dp"
             android:padding="36dp"
             android:text="Figure Eight"
-            android:elevation="2dp"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintHorizontal_bias="0.341"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,8 +92,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="20dp"
             android:text="Sphero stats"
+            android:textAppearance="@android:style/TextAppearance.Material.Headline"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/button_figure_eight" />
@@ -98,12 +105,15 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
+            android:checked="false"
             android:text="Stabilization"
+            android:textAppearance="@android:style/TextAppearance.Material.Widget.Button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <ListView
             android:id="@+id/list_view_data"
+            style="@android:style/Widget.Material.ListView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginBottom="8dp"

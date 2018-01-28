@@ -2,8 +2,6 @@ package com.nateswartz.spheroapp
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.content.res.Resources
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.RippleDrawable
 import android.support.v4.content.ContextCompat
 import android.view.View
@@ -11,14 +9,13 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 
-
 /**
  * Created by nates on 1/27/2018.
  */
 class ImageAdapter(private val mContext: Context) : BaseAdapter() {
 
     // references to our images
-    private val imgIds = arrayOf<Int>(
+    val imgIds = arrayOf<Int>(
             R.drawable.grid_docmcstuffins,
             R.drawable.grid_daniel_tiger,
             R.drawable.grid_sesame_street,
