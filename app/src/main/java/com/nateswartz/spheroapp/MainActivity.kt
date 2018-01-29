@@ -1,6 +1,7 @@
 package com.nateswartz.spheroapp
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -86,6 +87,9 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
         val item = menu.findItem(R.id.action_settings)
         item.isVisible = mRobot != null
         item.isEnabled = mRobot != null
+        val secondItem = menu.findItem(R.id.action_macros)
+        secondItem.isVisible = mRobot != null
+        secondItem.isEnabled = mRobot != null
         return true
     }
 
@@ -100,8 +104,15 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
             R.id.action_settings -> {
                 // User chose the "Settings" item, show the app settings UI...
                 Log.e("Activity", "Menu clicked")
+                val intent = Intent(this, RobotStatsActivity::class.java)
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+                true
+            }
+            R.id.action_macros -> {
+                // User chose the "Settings" item, show the app settings UI...
+                Log.e("Activity", "Menu clicked")
                 val intent = Intent(this, RobotMacrosActivity::class.java)
-                startActivity(intent)
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
                 true
             }
             else ->

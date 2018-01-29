@@ -7,6 +7,7 @@
 
     <android.widget.Toolbar
         android:id="@+id/my_toolbar"
+        android:title="Sphero Dances"
         style="@style/Toolbar" />
 
     <GridView xmlns:android="http://schemas.android.com/apk/res/android"

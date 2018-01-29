@@ -5,49 +5,29 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.media.MediaPlayer
+import android.graphics.Color.rgb
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.widget.*
 import com.orbotix.ConvenienceRobot
-import com.orbotix.async.AsyncMessage
-import com.orbotix.async.DeviceSensorAsyncMessage
-import com.orbotix.common.ResponseListener
-import com.orbotix.common.Robot
 import com.orbotix.common.RobotChangedStateListener
 import com.orbotix.macro.MacroObject
-import com.orbotix.response.DeviceResponse
-import com.orbotix.subsystem.SensorControl
 import kotlinx.android.synthetic.main.activity_robot_macros.*
-import android.widget.CompoundButton
-import com.orbotix.common.sensor.*
-import android.widget.ArrayAdapter
-import android.widget.Toolbar
-import com.orbotix.command.GetPowerStateCommand
 
-
-class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
+class RobotMacrosActivity : Activity(), RobotServiceListener {
 
     private var mBoundService: RobotProviderService? = null
     private var mBoundBluetoothService: BluetoothControllerService? = null
     private var mRobotActions = RobotActions()
     private var mRobot: ConvenienceRobot? = null
-    private var mp = MediaPlayer()
     private var mIsBound = false
     private var mIsBluetoothBound = false
 
-    private val dataFormat = arrayListOf<String>("X Accel: %.4f",
-                                                 "Y Accel: %.4f",
-                                                 "Z Accel: %.4f",
-                                                 "Roll: %3d°",
-                                                 "Pitch: %3d°",
-                                                 "Yaw: %3d°",
-                                                 "Charges: %s",
-                                                 "Battery: %s",
-                                                 "Seconds Since Charge: %s")
-
-    private val dataBinding = Array<String>(9) {_ -> ""}
-    private lateinit var dataAdapter: ArrayAdapter<String>
+    private var redValue = 100
+    private var greenValue = 100
+    private var blueValue = 100
 
     private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -95,11 +75,37 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
         // Enable the Up button
         ab!!.setDisplayHomeAsUpEnabled(true)
 
-        setupButtons()
+        // set a change listener on the SeekBar
+        val redSeekBar = findViewById<SeekBar>(R.id.seekBar_Red)
+        val greenSeekBar = findViewById<SeekBar>(R.id.seekBar_Green)
+        val blueSeekBar = findViewById<SeekBar>(R.id.seekBar_Blue)
+        redSeekBar.setOnSeekBarChangeListener(seekBarChangeListener)
+        greenSeekBar.setOnSeekBarChangeListener(seekBarChangeListener)
+        blueSeekBar.setOnSeekBarChangeListener(seekBarChangeListener)
 
-        dataAdapter = ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, dataBinding)
-        list_view_data.setAdapter(dataAdapter)
+        setupButtons()
+    }
+
+    private var seekBarChangeListener: SeekBar.OnSeekBarChangeListener = object : SeekBar.OnSeekBarChangeListener {
+
+        override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+            // updated continuously as the user slides the thumb
+            when (seekBar.id) {
+                R.id.seekBar_Red -> redValue = progress
+                R.id.seekBar_Green -> greenValue = progress
+                R.id.seekBar_Blue -> blueValue = progress
+            }
+            val color = ColorDrawable(rgb(redValue, greenValue, blueValue))
+            findViewById<ImageView>(R.id.imageView_ColorPreview).setImageDrawable(color)
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar) {
+            // called when the user first touches the SeekBar
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar) {
+            // called after the user finishes moving the SeekBar
+        }
     }
 
     override fun onStart() {
@@ -127,10 +133,6 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
     override fun onDestroy() {
         Log.e("MacrosActivity", "onDestroy")
         super.onDestroy()
-        if (mp.isPlaying) {
-            mp.stop()
-            mp.release()
-        }
     }
 
     override fun handleRobotChange(robot: ConvenienceRobot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
@@ -139,14 +141,6 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
                 Log.e("MacrosActivity", "handleRobotConnected")
                 mRobot = robot
                 enableButtons()
-                val sensorFlag = SensorFlag(SensorFlag.SENSOR_FLAG_QUATERNION,
-                                            SensorFlag.SENSOR_FLAG_ACCELEROMETER_NORMALIZED,
-                                            SensorFlag.SENSOR_FLAG_GYRO_NORMALIZED,
-                                            SensorFlag.SENSOR_FLAG_MOTOR_BACKEMF_NORMALIZED,
-                                            SensorFlag.SENSOR_FLAG_ATTITUDE)
-                mRobot!!.enableSensors(sensorFlag, SensorControl.StreamingRate.STREAMING_RATE1)
-                mRobot!!.enableStabilization(false)
-                mRobot!!.addResponseListener(this)
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
                 Log.e("MacrosActivity", "handleRobotDisconnected")
@@ -156,109 +150,17 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
         }
     }
 
-    override fun handleResponse(response: DeviceResponse?, robot: Robot?) {
-        if (response!!.commandId.toInt() == RESPONSE_CODE_BATTERY_INFO) {
-            try {
-                val message = BatteryInfoMessage(response)
-                dataBinding[6] = String.format(dataFormat[6], message.lifetimeCharges)
-                dataBinding[7] = String.format(dataFormat[7], message.powerState)
-                dataBinding[8] = String.format(dataFormat[8], message.secondsAwake)
-                dataAdapter.notifyDataSetChanged()
-            } catch (e: Exception) {}
-        }
-    }
-
-    override fun handleStringResponse(stringResponse: String?, robot: Robot?) {
-    }
-
-    override fun handleAsyncMessage(asyncMessage: AsyncMessage?, robot: Robot?) {
-        mRobot!!.sendCommand(GetPowerStateCommand())
-        if (asyncMessage == null)
-            return
-
-        //Check the asyncMessage type to see if it is a DeviceSensor message
-        if (asyncMessage is DeviceSensorAsyncMessage) {
-            val message = asyncMessage
-
-            if (message.sensorDataFrames == null
-                    || message.sensorDataFrames.isEmpty()
-                    || message.sensorDataFrames[0] == null)
-                return
-
-            //Retrieve DeviceSensorsData from the async message
-            val data = message.sensorDataFrames[0]
-
-            //Extract the accelerometer data from the sensor data
-            displayAccelerometer(data.accelerometerData)
-
-            //Extract attitude data (yaw, roll, pitch) from the sensor data
-            displayAttitude(data.attitudeData)
-
-            //Extract quaternion data from the sensor data
-            displayQuaterions(data.quaternion)
-
-            //Display back EMF data from left and right motors
-            displayBackEMF(data.backEMFData.emfFiltered)
-
-            //Extract gyroscope data from the sensor data
-            displayGyroscope(data.gyroData)
-        }
-    }
-
-    private fun displayBackEMF(sensor: BackEMFSensor?) {
-        if (sensor == null)
-            return
-
-        //mLeftMotor.setText(sensor.leftMotorValue.toString())
-       // mRightMotor.setText(sensor.rightMotorValue.toString())
-    }
-
-    private fun displayGyroscope(data: GyroData) {
-        //mGyroX.setText(data.rotationRateFiltered.x.toString())
-        //mGyroY.setText(data.rotationRateFiltered.y.toString())
-        //mGyroZ.setText(data.rotationRateFiltered.z.toString())
-    }
-
-    private fun displayAccelerometer(accelerometer: AccelerometerData?) {
-        if (accelerometer == null || accelerometer.filteredAcceleration == null) {
-            return
-        }
-
-        dataBinding[0] = String.format(dataFormat[0], accelerometer.filteredAcceleration.x)
-        dataBinding[1] = String.format(dataFormat[1], accelerometer.filteredAcceleration.y)
-        dataBinding[2] = String.format(dataFormat[2], accelerometer.filteredAcceleration.z)
-        dataAdapter.notifyDataSetChanged()
-    }
-
-    private fun displayAttitude(attitude: AttitudeSensor?) {
-        if (attitude == null)
-            return
-
-        dataBinding[3] = String.format(dataFormat[3], attitude.roll)
-        dataBinding[4] = String.format(dataFormat[4], attitude.pitch)
-        dataBinding[5] = String.format(dataFormat[5], attitude.yaw)
-        dataAdapter.notifyDataSetChanged()
-    }
-
-    private fun displayQuaterions(quaternion: QuaternionSensor?) {
-        if (quaternion == null)
-            return
-
-        //Display the four quaterions data
-        //mQ0Value.setText(String.format("%.5f", quaternion.getQ0()))
-        //mQ1Value.setText(String.format("%.5f", quaternion.getQ1()))
-        //mQ2Value.setText(String.format("%.5f", quaternion.getQ2()))
-        //mQ3Value.setText(String.format("%.5f", quaternion.getQ3()))
-
-    }
-
     private fun setupButtons() {
         button_shake.setOnClickListener { triggerMacro(mRobotActions::shake) }
         button_spin.setOnClickListener { triggerMacro(mRobotActions::spin) }
         button_change_colors.setOnClickListener { triggerMacro(mRobotActions::changeColors) }
         button_figure_eight.setOnClickListener { triggerMacro(mRobotActions::figureEight) }
+
         toggle_stabilization.setOnCheckedChangeListener({ _, isChecked ->
             mRobot?.enableStabilization(isChecked) })
+
+        button_setColor.setOnClickListener {
+            mRobot?.setLed(redValue.toFloat() / 255, greenValue.toFloat() / 255, blueValue.toFloat() / 255) }
 
         if (mRobot?.isConnected == true) {
             enableButtons()
