@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.MenuItem
 import android.widget.*
 import com.orbotix.ConvenienceRobot
 import com.orbotix.common.RobotChangedStateListener
@@ -117,6 +118,17 @@ class RobotMacrosActivity : Activity(), RobotServiceListener {
 
         val btIntent = Intent(this, BluetoothControllerService::class.java)
         bindService(btIntent, mBluetoothConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+        // Respond to the action bar's Up/Home button
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onStop() {

@@ -21,11 +21,9 @@ import com.orbotix.common.sensor.*
 import android.widget.ArrayAdapter
 import android.widget.Toolbar
 import com.orbotix.command.GetPowerStateCommand
-import android.R.animator
-import android.app.ActivityOptions
-import android.view.MenuItem
-import android.support.v4.app.NavUtils
 import com.orbotix.response.GetPowerStateResponse
+import android.support.v4.app.NavUtils
+import android.view.MenuItem
 
 
 class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
@@ -98,6 +96,17 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
         dataAdapter = ArrayAdapter(this,
                 android.R.layout.simple_list_item_1, dataBinding)
         list_view_data.adapter = dataAdapter
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+        // Respond to the action bar's Up/Home button
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onStart() {
