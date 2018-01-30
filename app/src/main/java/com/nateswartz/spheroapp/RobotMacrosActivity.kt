@@ -13,11 +13,19 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.*
 import com.orbotix.ConvenienceRobot
+import com.orbotix.async.AsyncMessage
+import com.orbotix.command.GetDeviceModeCommand
+import com.orbotix.command.GetUserRGBColorCommand
+import com.orbotix.common.ResponseListener
+import com.orbotix.common.Robot
 import com.orbotix.common.RobotChangedStateListener
 import com.orbotix.macro.MacroObject
+import com.orbotix.response.DeviceResponse
+import com.orbotix.response.GetPowerStateResponse
+import com.orbotix.response.GetUserRGBColorResponse
 import kotlinx.android.synthetic.main.activity_robot_macros.*
 
-class RobotMacrosActivity : Activity(), RobotServiceListener {
+class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
 
     private var mBoundService: RobotProviderService? = null
     private var mBoundBluetoothService: BluetoothControllerService? = null
@@ -98,6 +106,7 @@ class RobotMacrosActivity : Activity(), RobotServiceListener {
             }
             val color = ColorDrawable(rgb(redValue, greenValue, blueValue))
             findViewById<ImageView>(R.id.imageView_ColorPreview).setImageDrawable(color)
+            mRobot?.setLed(redValue.toFloat() / 255, greenValue.toFloat() / 255, blueValue.toFloat() / 255)
         }
 
         override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -152,6 +161,7 @@ class RobotMacrosActivity : Activity(), RobotServiceListener {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
                 Log.e("MacrosActivity", "handleRobotConnected")
                 mRobot = robot
+                //mRobot!!.sendCommand(GetUserRGBColorCommand())
                 enableButtons()
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
@@ -162,6 +172,19 @@ class RobotMacrosActivity : Activity(), RobotServiceListener {
         }
     }
 
+    override fun handleResponse(response: DeviceResponse?, robot: Robot?) {
+        if (response is GetUserRGBColorResponse)
+        {
+            Log.e("MacrosActivity", "Red - ${redValue}; Green - ${greenValue}; Blue - $blueValue; ")
+        }
+    }
+
+    override fun handleStringResponse(stringResponse: String?, robot: Robot?) {
+    }
+
+    override fun handleAsyncMessage(asyncMessage: AsyncMessage?, robot: Robot?) {
+    }
+
     private fun setupButtons() {
         button_shake.setOnClickListener { triggerMacro(mRobotActions::shake) }
         button_spin.setOnClickListener { triggerMacro(mRobotActions::spin) }
@@ -170,9 +193,6 @@ class RobotMacrosActivity : Activity(), RobotServiceListener {
 
         toggle_stabilization.setOnCheckedChangeListener({ _, isChecked ->
             mRobot?.enableStabilization(isChecked) })
-
-        button_setColor.setOnClickListener {
-            mRobot?.setLed(redValue.toFloat() / 255, greenValue.toFloat() / 255, blueValue.toFloat() / 255) }
 
         if (mRobot?.isConnected == true) {
             enableButtons()

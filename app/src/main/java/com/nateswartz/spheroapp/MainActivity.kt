@@ -1,7 +1,6 @@
 package com.nateswartz.spheroapp
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -23,9 +22,6 @@ import android.widget.Toolbar
 import com.orbotix.common.RobotChangedStateListener
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.GridView
-
-
-
 
 class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener {
 

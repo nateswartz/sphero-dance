@@ -22,7 +22,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toolbar
 import com.orbotix.command.GetPowerStateCommand
 import com.orbotix.response.GetPowerStateResponse
-import android.support.v4.app.NavUtils
 import android.view.MenuItem
 
 
