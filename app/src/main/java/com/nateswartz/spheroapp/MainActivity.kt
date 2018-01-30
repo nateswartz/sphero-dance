@@ -105,14 +105,14 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
                 // User chose the "Settings" item, show the app settings UI...
                 Log.e("Activity", "Menu clicked")
                 val intent = Intent(this, RobotStatsActivity::class.java)
-                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+                startActivity(intent)
                 true
             }
             R.id.action_macros -> {
                 // User chose the "Settings" item, show the app settings UI...
                 Log.e("Activity", "Menu clicked")
                 val intent = Intent(this, RobotMacrosActivity::class.java)
-                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+                startActivity(intent)
                 true
             }
             else ->

@@ -83,20 +83,6 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-        // Respond to the action bar's Up/Home button
-            android.R.id.home -> {
-                Log.e("StatsActivity", "Going back")
-                val intent = parentActivityIntent
-                intent.putExtras(ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
-                NavUtils.navigateUpTo(this, intent)
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e("StatsActivity", "onCreate")
         super.onCreate(savedInstanceState)
