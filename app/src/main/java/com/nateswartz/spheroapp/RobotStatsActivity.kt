@@ -25,8 +25,7 @@ import android.R.animator
 import android.app.ActivityOptions
 import android.view.MenuItem
 import android.support.v4.app.NavUtils
-
-
+import com.orbotix.response.GetPowerStateResponse
 
 
 class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
@@ -141,6 +140,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
                 mRobot!!.enableSensors(sensorFlag, SensorControl.StreamingRate.STREAMING_RATE1)
                 mRobot!!.enableStabilization(false)
                 mRobot!!.addResponseListener(this)
+                mRobot!!.sendCommand(GetPowerStateCommand())
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
                 Log.e("StatsActivity", "handleRobotDisconnected")
@@ -150,14 +150,19 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
     }
 
     override fun handleResponse(response: DeviceResponse?, robot: Robot?) {
-        if (response!!.commandId.toInt() == RESPONSE_CODE_BATTERY_INFO) {
-            try {
-                val message = BatteryInfoMessage(response)
-                dataBinding[6] = String.format(dataFormat[6], message.lifetimeCharges)
-                dataBinding[7] = String.format(dataFormat[7], message.powerState)
-                dataBinding[8] = String.format(dataFormat[8], message.secondsAwake)
-                dataAdapter.notifyDataSetChanged()
-            } catch (e: Exception) {}
+        if (response is GetPowerStateResponse)
+        {
+            val powerStateText = when (response.powerState) {
+                1 -> "Charging"
+                2 -> "OK"
+                3 -> "Low"
+                4 -> "Critical"
+                else -> "Unknown"
+            }
+            dataBinding[6] = String.format(dataFormat[6], response.numberOfCharges)
+            dataBinding[7] = String.format(dataFormat[7], powerStateText)
+            dataBinding[8] = String.format(dataFormat[8], response.timeSinceLastCharge)
+            dataAdapter.notifyDataSetChanged()
         }
     }
 
@@ -165,7 +170,6 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
     }
 
     override fun handleAsyncMessage(asyncMessage: AsyncMessage?, robot: Robot?) {
-        mRobot!!.sendCommand(GetPowerStateCommand())
         if (asyncMessage == null)
             return
 
