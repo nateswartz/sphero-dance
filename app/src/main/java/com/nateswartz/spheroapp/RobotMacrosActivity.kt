@@ -106,6 +106,13 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
             }
             val color = ColorDrawable(rgb(redValue, greenValue, blueValue))
             findViewById<ImageView>(R.id.imageView_ColorPreview).setImageDrawable(color)
+            val sharedPref = this@RobotMacrosActivity?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+            with(sharedPref.edit()) {
+                putInt(getString(R.string.saved_red_value), redValue)
+                putInt(getString(R.string.saved_green_value), greenValue)
+                putInt(getString(R.string.saved_blue_value), blueValue)
+                commit()
+            }
             mRobot?.setLed(redValue.toFloat() / 255, greenValue.toFloat() / 255, blueValue.toFloat() / 255)
         }
 
@@ -161,7 +168,6 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
                 Log.e("MacrosActivity", "handleRobotConnected")
                 mRobot = robot
-                //mRobot!!.sendCommand(GetUserRGBColorCommand())
                 enableButtons()
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
@@ -203,7 +209,7 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
 
     private fun triggerMacro(actionProvider: () -> MacroObject) {
         if (mRobot?.isConnected == true) {
-            mRobotActions.setRobotToDefaultState(mRobot!!)
+            mRobotActions.setRobotToDefaultState(mRobot!!, this)
             (toggle_stabilization as CompoundButton).isChecked = true
             val macro = actionProvider()
             macro.setRobot(mRobot!!.robot)

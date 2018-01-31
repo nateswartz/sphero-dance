@@ -191,6 +191,14 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
                 toast.setGravity(Gravity.BOTTOM, 0, 10)
                 toast.show()
                 handleRobotAlreadyConnected(robot)
+                val sharedPref = this?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+                val savedRedValue = sharedPref.getInt(getString(R.string.saved_red_value), -1)
+                val savedGreenValue = sharedPref.getInt(getString(R.string.saved_green_value), -1)
+                val savedBlueValue = sharedPref.getInt(getString(R.string.saved_blue_value), -1)
+
+                if (savedRedValue != 1) {
+                    mRobot?.setLed(savedRedValue.toFloat() / 255, savedGreenValue.toFloat() / 255, savedBlueValue.toFloat() / 255 )
+                }
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
                 Log.e("Activity", "handleRobotDisconnected")
@@ -242,13 +250,13 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
             mp = MediaPlayer.create(applicationContext, resid)
             mp.start()
             if (mRobot?.isConnected == true) {
-                mRobotActions.setRobotToDefaultState(mRobot!!)
+                mRobotActions.setRobotToDefaultState(mRobot!!, this)
                 val macro = song()
                 macro.setRobot(mRobot!!.robot)
                 macro.playMacro()
             }
         } else if (clicks.containsKey(resid) && clicks[resid]!! >= clicksToStop) {
-            if (mRobot?.isConnected == true) mRobotActions.setRobotToDefaultState(mRobot!!)
+            if (mRobot?.isConnected == true) mRobotActions.setRobotToDefaultState(mRobot!!, this)
             mp.stop()
             clicks[resid] = 0
         } else {

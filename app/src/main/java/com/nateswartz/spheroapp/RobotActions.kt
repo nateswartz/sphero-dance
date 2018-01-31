@@ -1,5 +1,8 @@
 package com.nateswartz.spheroapp
 
+import android.app.Activity
+import android.content.Context
+import android.provider.Settings.Global.getString
 import com.orbotix.ConvenienceRobot
 import com.orbotix.command.AbortMacroCommand
 import com.orbotix.macro.MacroObject
@@ -66,9 +69,20 @@ class RobotActions {
         return macro
     }
 
-    fun setRobotToDefaultState(robot: ConvenienceRobot) {
+    fun setRobotToDefaultState(robot: ConvenienceRobot, context: Context) {
+        val activity = context as Activity
+        val sharedPref = activity?.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val savedRedValue = sharedPref.getInt(context.getString(R.string.saved_red_value), -1)
+        val savedGreenValue = sharedPref.getInt(context.getString(R.string.saved_green_value), -1)
+        val savedBlueValue = sharedPref.getInt(context.getString(R.string.saved_blue_value), -1)
+
         robot.sendCommand(AbortMacroCommand())
-        robot.setLed(0.5f, 0.5f, 0.5f)
+        if (savedRedValue != 1) {
+            robot.setLed(savedRedValue.toFloat() / 255, savedGreenValue.toFloat() / 255, savedBlueValue.toFloat() / 255 )
+        }
+        else {
+            robot.setLed(0.5f, 0.5f, 0.5f)
+        }
         robot.enableStabilization(true)
         robot.setBackLedBrightness(0.0f)
         robot.stop()

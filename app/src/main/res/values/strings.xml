@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">Sphero Testing</string>
-    <string name="welcome_text">Hello World!</string>
+    <string name="app_name">Sphero Dances</string>
+    <string name="preference_file_key">sphero_dance_pref_file</string>
+    <string name="saved_red_value">saved_red</string>
+    <string name="saved_green_value">saved_green</string>
+    <string name="saved_blue_value">saved_blue</string>
 </resources>
