@@ -25,7 +25,7 @@ import com.orbotix.response.GetPowerStateResponse
 import android.view.MenuItem
 
 
-class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
+class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, BluetoothServiceListener {
 
     private var mBoundService: RobotProviderService? = null
     private var mBoundBluetoothService: BluetoothControllerService? = null
@@ -70,6 +70,10 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
             Log.e("Activity","onServiceConnected")
             mBoundBluetoothService = (service as BluetoothControllerService.BluetoothBinder).service
             mIsBluetoothBound = true
+            if (mBoundBluetoothService!!.hasActiveBluetooth()) {
+                val intent = Intent(this@RobotStatsActivity, RobotProviderService::class.java)
+                bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+            }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
@@ -112,11 +116,14 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
         Log.e("StatsActivity", "onStart")
         super.onStart()
 
-        val intent = Intent(this, RobotProviderService::class.java)
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
-
         val btIntent = Intent(this, BluetoothControllerService::class.java)
         bindService(btIntent, mBluetoothConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun handleBluetoothChange(type: Int) {
+        Log.e("StatsActivity", "Bluetooth Connected")
+        val intent = Intent(this@RobotStatsActivity, RobotProviderService::class.java)
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
@@ -183,7 +190,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener {
 
         //Check the asyncMessage type to see if it is a DeviceSensor message
         if (asyncMessage is DeviceSensorAsyncMessage) {
-
+            mRobot!!.sendCommand(GetPowerStateCommand())
             if (asyncMessage.sensorDataFrames == null
                     || asyncMessage.sensorDataFrames.isEmpty()
                     || asyncMessage.sensorDataFrames[0] == null)

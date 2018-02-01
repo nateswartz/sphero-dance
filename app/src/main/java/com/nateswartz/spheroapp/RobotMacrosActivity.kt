@@ -14,14 +14,11 @@ import android.view.MenuItem
 import android.widget.*
 import com.orbotix.ConvenienceRobot
 import com.orbotix.async.AsyncMessage
-import com.orbotix.command.GetDeviceModeCommand
-import com.orbotix.command.GetUserRGBColorCommand
 import com.orbotix.common.ResponseListener
 import com.orbotix.common.Robot
 import com.orbotix.common.RobotChangedStateListener
 import com.orbotix.macro.MacroObject
 import com.orbotix.response.DeviceResponse
-import com.orbotix.response.GetPowerStateResponse
 import com.orbotix.response.GetUserRGBColorResponse
 import kotlinx.android.synthetic.main.activity_robot_macros.*
 
@@ -106,7 +103,7 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
             }
             val color = ColorDrawable(rgb(redValue, greenValue, blueValue))
             findViewById<ImageView>(R.id.imageView_ColorPreview).setImageDrawable(color)
-            val sharedPref = this@RobotMacrosActivity?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+            val sharedPref = this@RobotMacrosActivity.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
             with(sharedPref.edit()) {
                 putInt(getString(R.string.saved_red_value), redValue)
                 putInt(getString(R.string.saved_green_value), greenValue)
@@ -175,6 +172,8 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
                 mRobot = null
                 disableButtons()
             }
+            else -> {
+            }
         }
     }
 
@@ -199,6 +198,23 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener {
 
         toggle_stabilization.setOnCheckedChangeListener({ _, isChecked ->
             mRobot?.enableStabilization(isChecked) })
+
+        val sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val savedRedValue = sharedPref.getInt(getString(R.string.saved_red_value), -1)
+        val savedGreenValue = sharedPref.getInt(getString(R.string.saved_green_value), -1)
+        val savedBlueValue = sharedPref.getInt(getString(R.string.saved_blue_value), -1)
+
+        if (savedRedValue != -1) {
+            val redBar = findViewById<SeekBar>(R.id.seekBar_Red)
+            val greenBar = findViewById<SeekBar>(R.id.seekBar_Green)
+            val blueBar = findViewById<SeekBar>(R.id.seekBar_Blue)
+            redBar.progress = savedRedValue
+            greenBar.progress = savedGreenValue
+            blueBar.progress = savedBlueValue
+            redBar.refreshDrawableState()
+            greenBar.refreshDrawableState()
+            blueBar.refreshDrawableState()
+        }
 
         if (mRobot?.isConnected == true) {
             enableButtons()

@@ -77,7 +77,7 @@ class RobotActions {
         val savedBlueValue = sharedPref.getInt(context.getString(R.string.saved_blue_value), -1)
 
         robot.sendCommand(AbortMacroCommand())
-        if (savedRedValue != 1) {
+        if (savedRedValue != -1) {
             robot.setLed(savedRedValue.toFloat() / 255, savedGreenValue.toFloat() / 255, savedBlueValue.toFloat() / 255 )
         }
         else {
