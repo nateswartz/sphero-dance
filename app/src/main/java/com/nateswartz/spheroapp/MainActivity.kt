@@ -16,7 +16,6 @@ import java.util.*
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageButton
 import android.widget.Toast
 import android.widget.Toolbar
 import com.orbotix.common.RobotChangedStateListener
@@ -25,25 +24,48 @@ import android.widget.GridView
 
 class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener {
 
-    private var mBoundService: RobotProviderService? = null
-    private var mBoundBluetoothService: BluetoothControllerService? = null
-    private var mRobotActions = RobotActions()
-    private var mRobotDances = RobotDances()
+    private var robotActions = RobotActions()
+    private var robotDances = RobotDances()
     private var mRobot: ConvenienceRobot? = null
     private val clicks = HashMap<Int, Int>()
     private var mp = MediaPlayer()
     private val clicksToStop = 0
-    private var mIsBound = false
-    private var mIsBluetoothBound = false
+    private var isRobotServiceBound = false
+    private var isBluetoothServiceBound = false
+    private var robotAlreadyConnected = false
 
-    private val mConnection = object : ServiceConnection {
+    private val bluetoothServiceConnection = object : ServiceConnection {
+        private var boundBluetoothService: BluetoothControllerService? = null
+
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             Log.e("Activity","onServiceConnected")
-            mBoundService = (service as RobotProviderService.RobotBinder).service
-            mIsBound = true
-            mBoundService?.addListener(this@MainActivity)
-            if (mBoundService?.hasActiveRobot() == true) {
-                handleRobotAlreadyConnected(mBoundService!!.getRobot())
+            boundBluetoothService = (service as BluetoothControllerService.BluetoothBinder).service
+            isBluetoothServiceBound = true
+            boundBluetoothService?.addListener(this@MainActivity)
+            if (boundBluetoothService?.hasActiveBluetooth() == true) {
+                handleBluetoothChange(1)
+            }
+        }
+
+        override fun onServiceDisconnected(className: ComponentName) {
+            Log.e("Activity","onServiceDisconnected")
+            boundBluetoothService = null
+            isBluetoothServiceBound = false
+            boundBluetoothService?.removeListener(this@MainActivity)
+        }
+    }
+
+    private val robotServiceConnection = object : ServiceConnection {
+        private var boundService: RobotProviderService? = null
+
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            Log.e("Activity","onServiceConnected")
+            boundService = (service as RobotProviderService.RobotBinder).service
+            isRobotServiceBound = true
+            boundService?.addListener(this@MainActivity)
+            if (boundService?.hasActiveRobot() == true) {
+                robotAlreadyConnected = true
+                handleRobotChange(boundService!!.getRobot(), RobotChangedStateListener.RobotChangedStateNotificationType.Online)
             } else {
                 val toast = Toast.makeText(this@MainActivity, "Discovering...",
                         Toast.LENGTH_LONG)
@@ -54,32 +76,13 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
 
         override fun onServiceDisconnected(className: ComponentName) {
             Log.e("Activity","onServiceDisconnected")
-            mBoundService = null
-            mIsBound = false
-            mBoundService?.removeListener(this@MainActivity)
+            boundService = null
+            isRobotServiceBound = false
+            boundService?.removeListener(this@MainActivity)
         }
     }
 
-    private val mBluetoothConnection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            Log.e("Activity","onServiceConnected")
-            mBoundBluetoothService = (service as BluetoothControllerService.BluetoothBinder).service
-            mIsBluetoothBound = true
-            mBoundBluetoothService?.addListener(this@MainActivity)
-            if (mBoundBluetoothService?.hasActiveBluetooth() == true) {
-                handleBluetoothChange(1)
-            }
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            Log.e("Activity","onServiceDisconnected")
-            mBoundBluetoothService = null
-            mIsBluetoothBound = false
-            mBoundBluetoothService?.removeListener(this@MainActivity)
-        }
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+/*    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val item = menu.findItem(R.id.action_settings)
         item.isVisible = mRobot != null
         item.isEnabled = mRobot != null
@@ -87,7 +90,7 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
         secondItem.isVisible = mRobot != null
         secondItem.isEnabled = mRobot != null
         return true
-    }
+    }*/
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -122,44 +125,46 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
         Log.e("Activity", "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setupActivity()
+    }
+
+    private fun setupActivity()
+    {
         val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
         setActionBar(myToolbar)
-
 
         val gridview = findViewById<View>(R.id.gridview) as GridView
         gridview.adapter = ImageAdapter(this)
 
         gridview.onItemClickListener = OnItemClickListener { parent, _, position, _ ->
             when ((parent.adapter as ImageAdapter).imgIds[position]) {
-                R.drawable.grid_docmcstuffins -> triggerSong(mRobotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
-                R.drawable.grid_daniel_tiger -> triggerSong(mRobotDances::danielTigerDance, R.raw.daniel_tiger_theme)
-                R.drawable.grid_sesame_street -> triggerSong(mRobotDances::sesameStreetDance, R.raw.seasame_street_theme)
-                R.drawable.grid_elmos_song -> triggerSong(mRobotDances::elmosSongDance, R.raw.elmos_song)
-                R.drawable.grid_itsybitsyspider -> triggerSong(mRobotDances::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider)
-                R.drawable.grid_head_shoulders_knees_toes -> triggerSong(mRobotDances::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes)
-                R.drawable.grid_cookie_monster -> triggerSong(mRobotDances::cookieDance, R.raw.c_is_for_cookie)
-                R.drawable.grid_rubber_ducky -> triggerSong(mRobotDances::rubberDuckieDance, R.raw.rubber_duckie)
+                R.drawable.grid_docmcstuffins -> triggerSong(robotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
+                R.drawable.grid_daniel_tiger -> triggerSong(robotDances::danielTigerDance, R.raw.daniel_tiger_theme)
+                R.drawable.grid_sesame_street -> triggerSong(robotDances::sesameStreetDance, R.raw.seasame_street_theme)
+                R.drawable.grid_elmos_song -> triggerSong(robotDances::elmosSongDance, R.raw.elmos_song)
+                R.drawable.grid_itsybitsyspider -> triggerSong(robotDances::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider)
+                R.drawable.grid_head_shoulders_knees_toes -> triggerSong(robotDances::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes)
+                R.drawable.grid_cookie_monster -> triggerSong(robotDances::cookieDance, R.raw.c_is_for_cookie)
+                R.drawable.grid_rubber_ducky -> triggerSong(robotDances::rubberDuckieDance, R.raw.rubber_duckie)
             }
         }
-
-        setupButtons()
     }
 
     override fun onStart() {
         Log.e("Activity", "onStart")
         val intent = Intent(this@MainActivity, BluetoothControllerService::class.java)
-        bindService(intent, mBluetoothConnection, Context.BIND_AUTO_CREATE)
+        bindService(intent, bluetoothServiceConnection, Context.BIND_AUTO_CREATE)
         super.onStart()
     }
 
     override fun onStop() {
         super.onStop()
         Log.e("Activity", "onStop")
-        if (mIsBound) {
-            unbindService(mConnection)
+        if (isRobotServiceBound) {
+            unbindService(robotServiceConnection)
         }
-        if (mIsBluetoothBound) {
-            unbindService(mBluetoothConnection)
+        if (isBluetoothServiceBound) {
+            unbindService(bluetoothServiceConnection)
         }
     }
 
@@ -174,24 +179,23 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
 
     override fun handleBluetoothChange(type: Int) {
         val intent = Intent(this@MainActivity, RobotProviderService::class.java)
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
-    }
-
-    fun handleRobotAlreadyConnected(robot: ConvenienceRobot) {
-        mRobot = robot
-        invalidateOptionsMenu()
+        bindService(intent, robotServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun handleRobotChange(robot: ConvenienceRobot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
         when (type) {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
-                Log.e("Activity", "handleRobotConnected")
-                val toast = Toast.makeText(this@MainActivity, "Connected!",
-                        Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.BOTTOM, 0, 10)
-                toast.show()
-                handleRobotAlreadyConnected(robot)
-                val sharedPref = this?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+                if (!robotAlreadyConnected) {
+                    Log.e("Activity", "handleRobotConnected")
+                    val toast = Toast.makeText(this@MainActivity, "Connected!",
+                            Toast.LENGTH_LONG)
+                    toast.setGravity(Gravity.BOTTOM, 0, 10)
+                    toast.show()
+                }
+                robotAlreadyConnected = false
+                isRobotServiceBound = true
+                mRobot = robot
+                val sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
                 val savedRedValue = sharedPref.getInt(getString(R.string.saved_red_value), -1)
                 val savedGreenValue = sharedPref.getInt(getString(R.string.saved_green_value), -1)
                 val savedBlueValue = sharedPref.getInt(getString(R.string.saved_blue_value), -1)
@@ -203,7 +207,6 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
                 Log.e("Activity", "handleRobotDisconnected")
                 mRobot = null
-                invalidateOptionsMenu()
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Connecting -> {
                 Log.e("Activity", "handleRobotConnecting")
@@ -214,19 +217,7 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
             }
             else -> {
             }
-        }    }
-
-    private fun setupButtons() {
-        invalidateOptionsMenu()
-
-        mapButton(R.id.play_checkup, mRobotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
-        mapButton(R.id.play_daniel, mRobotDances::danielTigerDance, R.raw.daniel_tiger_theme)
-        mapButton(R.id.play_sesame, mRobotDances::sesameStreetDance, R.raw.seasame_street_theme)
-        mapButton(R.id.play_elmo, mRobotDances::elmosSongDance, R.raw.elmos_song)
-        mapButton(R.id.play_spider, mRobotDances::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider)
-        mapButton(R.id.play_head, mRobotDances::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes)
-        mapButton(R.id.play_cookie, mRobotDances::cookieDance, R.raw.c_is_for_cookie)
-        mapButton(R.id.play_rubber_ducky, mRobotDances::rubberDuckieDance, R.raw.rubber_duckie)
+        }
     }
 
     private fun recordClick(buttonId: Int) {
@@ -250,23 +241,17 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
             mp = MediaPlayer.create(applicationContext, resid)
             mp.start()
             if (mRobot?.isConnected == true) {
-                mRobotActions.setRobotToDefaultState(mRobot!!, this)
+                robotActions.setRobotToDefaultState(mRobot!!, this)
                 val macro = song()
                 macro.setRobot(mRobot!!.robot)
                 macro.playMacro()
             }
         } else if (clicks.containsKey(resid) && clicks[resid]!! >= clicksToStop) {
-            if (mRobot?.isConnected == true) mRobotActions.setRobotToDefaultState(mRobot!!, this)
+            if (mRobot?.isConnected == true) robotActions.setRobotToDefaultState(mRobot!!, this)
             mp.stop()
             clicks[resid] = 0
         } else {
             recordClick(resid)
         }
-    }
-
-    private fun mapButton(button: Int, dance: () -> MacroObject, song: Int)
-    {
-        val playSong = findViewById<ImageButton>(button)
-        playSong.setOnClickListener { triggerSong(dance, song) }
     }
 }
