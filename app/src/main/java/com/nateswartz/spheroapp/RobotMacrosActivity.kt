@@ -1,88 +1,32 @@
 package com.nateswartz.spheroapp
 
-import android.app.Activity
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.graphics.Color.rgb
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
-import android.view.Gravity
 import android.view.MenuItem
-import android.widget.*
-import com.orbotix.ConvenienceRobot
+import android.widget.CompoundButton
+import android.widget.ImageView
+import android.widget.SeekBar
+import android.widget.Toolbar
 import com.orbotix.async.AsyncMessage
 import com.orbotix.common.ResponseListener
 import com.orbotix.common.Robot
-import com.orbotix.common.RobotChangedStateListener
 import com.orbotix.macro.MacroObject
 import com.orbotix.response.DeviceResponse
 import kotlinx.android.synthetic.main.activity_robot_macros.*
 
-class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener, BluetoothServiceListener {
+class RobotMacrosActivity : BaseRobotActivity(), ResponseListener {
 
     private var TAG = "RobotMacrosActivity"
 
     private var mRobotActions = RobotActions()
-    private var mRobot: ConvenienceRobot? = null
-    private var isRobotServiceBound = false
-    private var isBluetoothServiceBound = false
-    private var robotAlreadyConnected = false
 
     private var redValue = 100
     private var greenValue = 100
     private var blueValue = 100
-
-    private val bluetoothServiceConnection = object : ServiceConnection {
-        private var boundBluetoothService: BluetoothControllerService? = null
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            Log.e(TAG,"onServiceConnected")
-            boundBluetoothService = (service as BluetoothControllerService.BluetoothBinder).service
-            isBluetoothServiceBound = true
-            boundBluetoothService?.addListener(this@RobotMacrosActivity)
-            if (boundBluetoothService?.hasActiveBluetooth() == true) {
-                handleBluetoothChange(1)
-            }
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            Log.e(TAG,"onServiceDisconnected")
-            boundBluetoothService = null
-            isBluetoothServiceBound = false
-            boundBluetoothService?.removeListener(this@RobotMacrosActivity)
-        }
-    }
-
-    private val robotServiceConnection = object : ServiceConnection {
-        private var boundService: RobotProviderService? = null
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            Log.e(TAG,"onServiceConnected")
-            boundService = (service as RobotProviderService.RobotBinder).service
-            isRobotServiceBound = true
-            boundService?.addListener(this@RobotMacrosActivity)
-            if (boundService?.hasActiveRobot() == true) {
-                robotAlreadyConnected = true
-                handleRobotChange(boundService!!.getRobot(), RobotChangedStateListener.RobotChangedStateNotificationType.Online)
-            } else {
-                val toast = Toast.makeText(this@RobotMacrosActivity, "Discovering...",
-                        Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.BOTTOM, 0, 10)
-                toast.show()
-            }
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            Log.e(TAG,"onServiceDisconnected")
-            boundService = null
-            isRobotServiceBound = false
-            boundService?.removeListener(this@RobotMacrosActivity)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e(TAG, "onCreate")
@@ -138,12 +82,6 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener, 
         bindService(btIntent, bluetoothServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
-    override fun handleBluetoothChange(type: Int) {
-        Log.e(TAG, "Bluetooth Connected")
-        val intent = Intent(this@RobotMacrosActivity, RobotProviderService::class.java)
-        bindService(intent, robotServiceConnection, Context.BIND_AUTO_CREATE)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
         // Respond to the action bar's Up/Home button
@@ -171,48 +109,7 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener, 
         super.onDestroy()
     }
 
-    override fun handleRobotChange(robot: ConvenienceRobot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
-        when (type) {
-            RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
-                if (!robotAlreadyConnected) {
-                    Log.e(TAG, "handleRobotConnected")
-                    val toast = Toast.makeText(this@RobotMacrosActivity, "Connected!",
-                            Toast.LENGTH_LONG)
-                    toast.setGravity(Gravity.BOTTOM, 0, 10)
-                    toast.show()
-                }
-                robotAlreadyConnected = false
-                isRobotServiceBound = true
-                mRobot = robot
-                val sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-                val savedRedValue = sharedPref.getInt(getString(R.string.saved_red_value), -1)
-                val savedGreenValue = sharedPref.getInt(getString(R.string.saved_green_value), -1)
-                val savedBlueValue = sharedPref.getInt(getString(R.string.saved_blue_value), -1)
-
-                if (savedRedValue != 1) {
-                    mRobot?.setLed(savedRedValue.toFloat() / 255, savedGreenValue.toFloat() / 255, savedBlueValue.toFloat() / 255 )
-                }
-
-                setupRobotItems()
-            }
-            RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
-                Log.e(TAG, "handleRobotDisconnected")
-                mRobot = null
-                disableRobotItems()
-            }
-            RobotChangedStateListener.RobotChangedStateNotificationType.Connecting -> {
-                Log.e(TAG, "handleRobotConnecting")
-                val toast = Toast.makeText(this@RobotMacrosActivity, "Connecting..",
-                        Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.BOTTOM, 0, 10)
-                toast.show()
-            }
-            else -> {
-            }
-        }
-    }
-
-    private fun setupRobotItems() {
+    override fun setupRobotItems() {
         button_shake.isEnabled = true
         button_spin.isEnabled = true
         button_change_colors.isEnabled = true
@@ -223,7 +120,7 @@ class RobotMacrosActivity : Activity(), RobotServiceListener, ResponseListener, 
         seekBar_Blue.isEnabled = true
     }
 
-    private fun disableRobotItems() {
+    override fun disableRobotItems() {
         button_shake.isEnabled = false
         button_spin.isEnabled = false
         button_change_colors.isEnabled = false
