@@ -11,14 +11,10 @@ import android.widget.CompoundButton
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.Toolbar
-import com.orbotix.async.AsyncMessage
-import com.orbotix.common.ResponseListener
-import com.orbotix.common.Robot
 import com.orbotix.macro.MacroObject
-import com.orbotix.response.DeviceResponse
 import kotlinx.android.synthetic.main.activity_robot_macros.*
 
-class RobotMacrosActivity : BaseRobotActivity(), ResponseListener {
+class RobotMacrosActivity : BaseRobotActivity() {
 
     private var TAG = "RobotMacrosActivity"
 
@@ -27,22 +23,6 @@ class RobotMacrosActivity : BaseRobotActivity(), ResponseListener {
     private var redValue = 100
     private var greenValue = 100
     private var blueValue = 100
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        Log.e(TAG, "onCreate")
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_robot_macros)
-        val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
-        setActionBar(myToolbar)
-
-        // Get a support ActionBar corresponding to this toolbar
-        val ab = actionBar
-
-        // Enable the Up button
-        ab!!.setDisplayHomeAsUpEnabled(true)
-
-        setupButtons()
-    }
 
     private var seekBarChangeListener: SeekBar.OnSeekBarChangeListener = object : SeekBar.OnSeekBarChangeListener {
 
@@ -74,14 +54,6 @@ class RobotMacrosActivity : BaseRobotActivity(), ResponseListener {
         }
     }
 
-    override fun onStart() {
-        Log.e(TAG, "onStart")
-        super.onStart()
-
-        val btIntent = Intent(this, BluetoothControllerService::class.java)
-        bindService(btIntent, bluetoothServiceConnection, Context.BIND_AUTO_CREATE)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
         // Respond to the action bar's Up/Home button
@@ -91,6 +63,30 @@ class RobotMacrosActivity : BaseRobotActivity(), ResponseListener {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.e(TAG, "onCreate")
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_robot_macros)
+        val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
+        setActionBar(myToolbar)
+
+        // Get a support ActionBar corresponding to this toolbar
+        val ab = actionBar
+
+        // Enable the Up button
+        ab!!.setDisplayHomeAsUpEnabled(true)
+
+        setupButtons()
+    }
+
+    override fun onStart() {
+        Log.e(TAG, "onStart")
+        super.onStart()
+
+        val btIntent = Intent(this, BluetoothControllerService::class.java)
+        bindService(btIntent, bluetoothServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
@@ -129,15 +125,6 @@ class RobotMacrosActivity : BaseRobotActivity(), ResponseListener {
         seekBar_Red.isEnabled = false
         seekBar_Green.isEnabled = false
         seekBar_Blue.isEnabled = false
-    }
-
-    override fun handleResponse(response: DeviceResponse?, robot: Robot?) {
-    }
-
-    override fun handleStringResponse(stringResponse: String?, robot: Robot?) {
-    }
-
-    override fun handleAsyncMessage(asyncMessage: AsyncMessage?, robot: Robot?) {
     }
 
     private fun setupButtons() {

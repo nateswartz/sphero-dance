@@ -36,6 +36,17 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
     private val dataBinding = Array(9) {_ -> ""}
     private lateinit var dataAdapter: ArrayAdapter<String>
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+        // Respond to the action bar's Up/Home button
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e(TAG, "onCreate")
         super.onCreate(savedInstanceState)
@@ -52,17 +63,6 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
         dataAdapter = ArrayAdapter(this,
                 android.R.layout.simple_list_item_1, dataBinding)
         list_view_data.adapter = dataAdapter
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-        // Respond to the action bar's Up/Home button
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onStart() {

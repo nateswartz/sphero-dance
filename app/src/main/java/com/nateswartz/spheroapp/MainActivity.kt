@@ -58,28 +58,6 @@ class MainActivity : BaseRobotActivity() {
         setupActivity()
     }
 
-    private fun setupActivity()
-    {
-        val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
-        setActionBar(myToolbar)
-
-        val gridview = findViewById<View>(R.id.gridview) as GridView
-        gridview.adapter = ImageAdapter(this)
-
-        gridview.onItemClickListener = OnItemClickListener { parent, _, position, _ ->
-            when ((parent.adapter as ImageAdapter).imgIds[position]) {
-                R.drawable.grid_docmcstuffins -> triggerSong(robotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
-                R.drawable.grid_daniel_tiger -> triggerSong(robotDances::danielTigerDance, R.raw.daniel_tiger_theme)
-                R.drawable.grid_sesame_street -> triggerSong(robotDances::sesameStreetDance, R.raw.seasame_street_theme)
-                R.drawable.grid_elmos_song -> triggerSong(robotDances::elmosSongDance, R.raw.elmos_song)
-                R.drawable.grid_itsybitsyspider -> triggerSong(robotDances::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider)
-                R.drawable.grid_head_shoulders_knees_toes -> triggerSong(robotDances::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes)
-                R.drawable.grid_cookie_monster -> triggerSong(robotDances::cookieDance, R.raw.c_is_for_cookie)
-                R.drawable.grid_rubber_ducky -> triggerSong(robotDances::rubberDuckieDance, R.raw.rubber_duckie)
-            }
-        }
-    }
-
     override fun onStart() {
         Log.e("Activity", "onStart")
         val intent = Intent(this@MainActivity, BluetoothControllerService::class.java)
@@ -104,6 +82,28 @@ class MainActivity : BaseRobotActivity() {
         if (mp.isPlaying) {
             mp.stop()
             mp.release()
+        }
+    }
+
+    private fun setupActivity()
+    {
+        val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
+        setActionBar(myToolbar)
+
+        val gridview = findViewById<View>(R.id.gridview) as GridView
+        gridview.adapter = ImageAdapter(this)
+
+        gridview.onItemClickListener = OnItemClickListener { parent, _, position, _ ->
+            when ((parent.adapter as ImageAdapter).imgIds[position]) {
+                R.drawable.grid_docmcstuffins -> triggerSong(robotDances::timeForYourCheckupDance, R.raw.time_for_your_checkup)
+                R.drawable.grid_daniel_tiger -> triggerSong(robotDances::danielTigerDance, R.raw.daniel_tiger_theme)
+                R.drawable.grid_sesame_street -> triggerSong(robotDances::sesameStreetDance, R.raw.seasame_street_theme)
+                R.drawable.grid_elmos_song -> triggerSong(robotDances::elmosSongDance, R.raw.elmos_song)
+                R.drawable.grid_itsybitsyspider -> triggerSong(robotDances::itsyBitsySpiderDance, R.raw.itsy_bitsy_spider)
+                R.drawable.grid_head_shoulders_knees_toes -> triggerSong(robotDances::headShouldersKneesToesDance, R.raw.head_shoulders_knees_toes)
+                R.drawable.grid_cookie_monster -> triggerSong(robotDances::cookieDance, R.raw.c_is_for_cookie)
+                R.drawable.grid_rubber_ducky -> triggerSong(robotDances::rubberDuckieDance, R.raw.rubber_duckie)
+            }
         }
     }
 
