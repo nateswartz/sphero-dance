@@ -29,6 +29,8 @@ import android.widget.Toast
 
 class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, BluetoothServiceListener {
 
+    private var TAG = "RobotStatsActivity"
+
     private var mRobot: ConvenienceRobot? = null
     private var isRobotServiceBound = false
     private var isBluetoothServiceBound = false
@@ -51,7 +53,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
         private var boundBluetoothService: BluetoothControllerService? = null
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            Log.e("Activity","onServiceConnected")
+            Log.e(TAG,"onServiceConnected")
             boundBluetoothService = (service as BluetoothControllerService.BluetoothBinder).service
             isBluetoothServiceBound = true
             boundBluetoothService?.addListener(this@RobotStatsActivity)
@@ -61,7 +63,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
-            Log.e("Activity","onServiceDisconnected")
+            Log.e(TAG,"onServiceDisconnected")
             boundBluetoothService = null
             isBluetoothServiceBound = false
             boundBluetoothService?.removeListener(this@RobotStatsActivity)
@@ -72,7 +74,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
         private var boundService: RobotProviderService? = null
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            Log.e("Activity","onServiceConnected")
+            Log.e(TAG,"onServiceConnected")
             boundService = (service as RobotProviderService.RobotBinder).service
             isRobotServiceBound = true
             boundService?.addListener(this@RobotStatsActivity)
@@ -88,7 +90,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
-            Log.e("Activity","onServiceDisconnected")
+            Log.e(TAG,"onServiceDisconnected")
             boundService = null
             isRobotServiceBound = false
             boundService?.removeListener(this@RobotStatsActivity)
@@ -96,7 +98,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.e("StatsActivity", "onCreate")
+        Log.e(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_robot_stats)
         val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
@@ -125,7 +127,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
     }
 
     override fun onStart() {
-        Log.e("StatsActivity", "onStart")
+        Log.e(TAG, "onStart")
         super.onStart()
 
         val btIntent = Intent(this, BluetoothControllerService::class.java)
@@ -133,13 +135,13 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
     }
 
     override fun handleBluetoothChange(type: Int) {
-        Log.e("StatsActivity", "Bluetooth Connected")
+        Log.e(TAG, "Bluetooth Connected")
         val intent = Intent(this@RobotStatsActivity, RobotProviderService::class.java)
         bindService(intent, robotServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
-        Log.e("StatsActivity", "onStop")
+        Log.e(TAG, "onStop")
         if (isRobotServiceBound) {
             unbindService(robotServiceConnection)
         }
@@ -150,7 +152,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
     }
 
     override fun onDestroy() {
-        Log.e("StatsActivity", "onDestroy")
+        Log.e(TAG, "onDestroy")
         super.onDestroy()
     }
 
@@ -158,7 +160,7 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
         when (type) {
             RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
                 if (!robotAlreadyConnected) {
-                    Log.e("Activity", "handleRobotConnected")
+                    Log.e(TAG, "handleRobotConnected")
                     val toast = Toast.makeText(this@RobotStatsActivity, "Connected!",
                             Toast.LENGTH_LONG)
                     toast.setGravity(Gravity.BOTTOM, 0, 10)
@@ -179,11 +181,11 @@ class RobotStatsActivity : Activity(), RobotServiceListener, ResponseListener, B
                 setupRobotItems()
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
-                Log.e("Activity", "handleRobotDisconnected")
+                Log.e(TAG, "handleRobotDisconnected")
                 mRobot = null
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Connecting -> {
-                Log.e("Activity", "handleRobotConnecting")
+                Log.e(TAG, "handleRobotConnecting")
                 val toast = Toast.makeText(this@RobotStatsActivity, "Connecting..",
                         Toast.LENGTH_LONG)
                 toast.setGravity(Gravity.BOTTOM, 0, 10)
