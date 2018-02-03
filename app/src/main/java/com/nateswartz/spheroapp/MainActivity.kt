@@ -16,6 +16,8 @@ import android.widget.GridView
 
 class MainActivity : BaseRobotActivity() {
 
+    private var TAG = "MainActivity"
+
     private var robotActions = RobotActions()
     private var robotDances = RobotDances()
     private val clicks = HashMap<Int, Int>()
@@ -32,14 +34,14 @@ class MainActivity : BaseRobotActivity() {
         return when (item.itemId) {
             R.id.action_settings -> {
                 // User chose the "Settings" item, show the app settings UI...
-                Log.e("Activity", "Menu clicked")
+                Log.e(TAG, "Menu clicked")
                 val intent = Intent(this, RobotStatsActivity::class.java)
                 startActivity(intent)
                 true
             }
             R.id.action_macros -> {
                 // User chose the "Settings" item, show the app settings UI...
-                Log.e("Activity", "Menu clicked")
+                Log.e(TAG, "Menu clicked")
                 val intent = Intent(this, RobotMacrosActivity::class.java)
                 startActivity(intent)
                 true
@@ -52,14 +54,14 @@ class MainActivity : BaseRobotActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.e("Activity", "onCreate")
+        Log.e(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupActivity()
     }
 
     override fun onStart() {
-        Log.e("Activity", "onStart")
+        Log.e(TAG, "onStart")
         val intent = Intent(this@MainActivity, BluetoothControllerService::class.java)
         bindService(intent, bluetoothServiceConnection, Context.BIND_AUTO_CREATE)
         super.onStart()
@@ -67,7 +69,7 @@ class MainActivity : BaseRobotActivity() {
 
     override fun onStop() {
         super.onStop()
-        Log.e("Activity", "onStop")
+        Log.e(TAG, "onStop")
         if (isRobotServiceBound) {
             unbindService(robotServiceConnection)
         }
@@ -77,7 +79,7 @@ class MainActivity : BaseRobotActivity() {
     }
 
     override fun onDestroy() {
-        Log.e("Activity", "onDestroy")
+        Log.e(TAG, "onDestroy")
         super.onDestroy()
         if (mp.isPlaying) {
             mp.stop()
