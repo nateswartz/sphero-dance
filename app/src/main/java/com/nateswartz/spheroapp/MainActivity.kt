@@ -1,96 +1,26 @@
 package com.nateswartz.spheroapp
 
-import android.app.Activity
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
-import android.view.Gravity
-import com.orbotix.ConvenienceRobot
 import com.orbotix.macro.MacroObject
 import java.util.*
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import android.widget.Toolbar
-import com.orbotix.common.RobotChangedStateListener
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.GridView
 
-class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener {
+class MainActivity : BaseRobotActivity() {
 
     private var robotActions = RobotActions()
     private var robotDances = RobotDances()
-    private var mRobot: ConvenienceRobot? = null
     private val clicks = HashMap<Int, Int>()
     private var mp = MediaPlayer()
     private val clicksToStop = 0
-    private var isRobotServiceBound = false
-    private var isBluetoothServiceBound = false
-    private var robotAlreadyConnected = false
-
-    private val bluetoothServiceConnection = object : ServiceConnection {
-        private var boundBluetoothService: BluetoothControllerService? = null
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            Log.e("Activity","onServiceConnected")
-            boundBluetoothService = (service as BluetoothControllerService.BluetoothBinder).service
-            isBluetoothServiceBound = true
-            boundBluetoothService?.addListener(this@MainActivity)
-            if (boundBluetoothService?.hasActiveBluetooth() == true) {
-                handleBluetoothChange(1)
-            }
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            Log.e("Activity","onServiceDisconnected")
-            boundBluetoothService = null
-            isBluetoothServiceBound = false
-            boundBluetoothService?.removeListener(this@MainActivity)
-        }
-    }
-
-    private val robotServiceConnection = object : ServiceConnection {
-        private var boundService: RobotProviderService? = null
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            Log.e("Activity","onServiceConnected")
-            boundService = (service as RobotProviderService.RobotBinder).service
-            isRobotServiceBound = true
-            boundService?.addListener(this@MainActivity)
-            if (boundService?.hasActiveRobot() == true) {
-                robotAlreadyConnected = true
-                handleRobotChange(boundService!!.getRobot(), RobotChangedStateListener.RobotChangedStateNotificationType.Online)
-            } else {
-                val toast = Toast.makeText(this@MainActivity, "Discovering...",
-                        Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.BOTTOM, 0, 10)
-                toast.show()
-            }
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            Log.e("Activity","onServiceDisconnected")
-            boundService = null
-            isRobotServiceBound = false
-            boundService?.removeListener(this@MainActivity)
-        }
-    }
-
-/*    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val item = menu.findItem(R.id.action_settings)
-        item.isVisible = mRobot != null
-        item.isEnabled = mRobot != null
-        val secondItem = menu.findItem(R.id.action_macros)
-        secondItem.isVisible = mRobot != null
-        secondItem.isEnabled = mRobot != null
-        return true
-    }*/
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -174,49 +104,6 @@ class MainActivity : Activity(), RobotServiceListener, BluetoothServiceListener 
         if (mp.isPlaying) {
             mp.stop()
             mp.release()
-        }
-    }
-
-    override fun handleBluetoothChange(type: Int) {
-        val intent = Intent(this@MainActivity, RobotProviderService::class.java)
-        bindService(intent, robotServiceConnection, Context.BIND_AUTO_CREATE)
-    }
-
-    override fun handleRobotChange(robot: ConvenienceRobot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
-        when (type) {
-            RobotChangedStateListener.RobotChangedStateNotificationType.Online -> {
-                if (!robotAlreadyConnected) {
-                    Log.e("Activity", "handleRobotConnected")
-                    val toast = Toast.makeText(this@MainActivity, "Connected!",
-                            Toast.LENGTH_LONG)
-                    toast.setGravity(Gravity.BOTTOM, 0, 10)
-                    toast.show()
-                }
-                robotAlreadyConnected = false
-                isRobotServiceBound = true
-                mRobot = robot
-                val sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-                val savedRedValue = sharedPref.getInt(getString(R.string.saved_red_value), -1)
-                val savedGreenValue = sharedPref.getInt(getString(R.string.saved_green_value), -1)
-                val savedBlueValue = sharedPref.getInt(getString(R.string.saved_blue_value), -1)
-
-                if (savedRedValue != 1) {
-                    mRobot?.setLed(savedRedValue.toFloat() / 255, savedGreenValue.toFloat() / 255, savedBlueValue.toFloat() / 255 )
-                }
-            }
-            RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
-                Log.e("Activity", "handleRobotDisconnected")
-                mRobot = null
-            }
-            RobotChangedStateListener.RobotChangedStateNotificationType.Connecting -> {
-                Log.e("Activity", "handleRobotConnecting")
-                val toast = Toast.makeText(this@MainActivity, "Connecting..",
-                        Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.BOTTOM, 0, 10)
-                toast.show()
-            }
-            else -> {
-            }
         }
     }
 
