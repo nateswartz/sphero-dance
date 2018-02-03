@@ -63,6 +63,8 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
         dataAdapter = ArrayAdapter(this,
                 android.R.layout.simple_list_item_1, dataBinding)
         list_view_data.adapter = dataAdapter
+
+        setupButtons()
     }
 
     override fun onStart() {
@@ -91,6 +93,7 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
 
     override fun setupRobotItems()
     {
+        toggle_stabilization.isEnabled = true
         val sensorFlag = SensorFlag(SensorFlag.SENSOR_FLAG_QUATERNION,
                 SensorFlag.SENSOR_FLAG_ACCELEROMETER_NORMALIZED,
                 SensorFlag.SENSOR_FLAG_GYRO_NORMALIZED,
@@ -100,6 +103,15 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
         mRobot!!.enableStabilization(false)
         mRobot!!.addResponseListener(this)
         mRobot!!.sendCommand(GetPowerStateCommand())
+    }
+
+    override fun disableRobotItems() {
+        toggle_stabilization.isEnabled = false
+    }
+
+    private fun setupButtons() {
+        toggle_stabilization.setOnCheckedChangeListener({ _, isChecked ->
+            mRobot?.enableStabilization(isChecked) })
     }
 
     override fun handleResponse(response: DeviceResponse?, robot: Robot?) {

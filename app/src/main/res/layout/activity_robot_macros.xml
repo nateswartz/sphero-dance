@@ -83,19 +83,6 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5" />
 
-        <ToggleButton
-            android:id="@+id/toggle_stabilization"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:layout_marginEnd="16dp"
-            android:checked="false"
-            android:textAppearance="@android:style/TextAppearance.Material.Widget.Button"
-            android:textOff="Stabilization Off"
-            android:textOn="Stabilization On"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
         <SeekBar
             android:id="@+id/seekBar_Red"
             android:layout_width="0dp"

@@ -110,7 +110,6 @@ class RobotMacrosActivity : BaseRobotActivity() {
         button_spin.isEnabled = true
         button_change_colors.isEnabled = true
         button_figure_eight.isEnabled = true
-        toggle_stabilization.isEnabled = true
         seekBar_Red.isEnabled = true
         seekBar_Green.isEnabled = true
         seekBar_Blue.isEnabled = true
@@ -121,7 +120,6 @@ class RobotMacrosActivity : BaseRobotActivity() {
         button_spin.isEnabled = false
         button_change_colors.isEnabled = false
         button_figure_eight.isEnabled = false
-        toggle_stabilization.isEnabled = false
         seekBar_Red.isEnabled = false
         seekBar_Green.isEnabled = false
         seekBar_Blue.isEnabled = false
@@ -140,9 +138,6 @@ class RobotMacrosActivity : BaseRobotActivity() {
         button_spin.setOnClickListener { triggerMacro(mRobotActions::spin) }
         button_change_colors.setOnClickListener { triggerMacro(mRobotActions::changeColors) }
         button_figure_eight.setOnClickListener { triggerMacro(mRobotActions::figureEight) }
-
-        toggle_stabilization.setOnCheckedChangeListener({ _, isChecked ->
-            mRobot?.enableStabilization(isChecked) })
 
         val sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         val savedRedValue = sharedPref.getInt(getString(R.string.saved_red_value), -1)
@@ -166,7 +161,6 @@ class RobotMacrosActivity : BaseRobotActivity() {
     private fun triggerMacro(actionProvider: () -> MacroObject) {
         if (mRobot?.isConnected == true) {
             mRobotActions.setRobotToDefaultState(mRobot!!, this)
-            (toggle_stabilization as CompoundButton).isChecked = true
             val macro = actionProvider()
             macro.setRobot(mRobot!!.robot)
             macro.playMacro()
