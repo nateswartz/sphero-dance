@@ -12,10 +12,7 @@ import android.widget.Toast
 import com.orbotix.ConvenienceRobot
 import com.orbotix.common.RobotChangedStateListener
 
-/**
- * Created by nates on 1/31/2018.
- */
-open class BaseRobotActivity : Activity(), RobotServiceListener, BluetoothServiceListener{
+abstract class BaseRobotActivity : Activity(), RobotServiceListener, BluetoothServiceListener{
 
     var isRobotServiceBound = false
     var isBluetoothServiceBound = false
@@ -120,6 +117,6 @@ open class BaseRobotActivity : Activity(), RobotServiceListener, BluetoothServic
         }
     }
 
-    open fun setupRobotItems() {}
-    open fun disableRobotItems() {}
+    abstract fun setupRobotItems()
+    abstract fun disableRobotItems()
 }

@@ -109,6 +109,12 @@ class MainActivity : BaseRobotActivity() {
         }
     }
 
+    override fun setupRobotItems() {
+    }
+
+    override fun disableRobotItems() {
+    }
+
     private fun recordClick(buttonId: Int) {
         var keyFound = false
         for (key in clicks.keys) {

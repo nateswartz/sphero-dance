@@ -44,6 +44,7 @@ class RobotProviderService : Service(), RobotChangedStateListener {
         Log.e("Service", "onBind")
         if (!mDiscoveryAgent.isDiscovering) {
             try {
+                Log.e("Service", "Discovering...")
                 mDiscoveryAgent.startDiscovery(applicationContext)
             } catch (e: DiscoveryException) {
                 Log.e("Service", "DiscoveryException: " + e.message)
