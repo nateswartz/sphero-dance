@@ -15,7 +15,7 @@ import android.widget.ImageView
 class ImageAdapter(private val mContext: Context) : BaseAdapter() {
 
     // references to our images
-    val imgIds = arrayOf<Int>(
+    val imgIds = arrayOf(
             R.drawable.grid_docmcstuffins,
             R.drawable.grid_daniel_tiger,
             R.drawable.grid_sesame_street,
@@ -44,7 +44,7 @@ class ImageAdapter(private val mContext: Context) : BaseAdapter() {
             // if it's not recycled, initialize some attributes
             imageView = ImageView(mContext)
             //imageView.setLayoutParams(GridView.LayoutParams(85, 85))
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP)
+            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
             imageView.setPadding(8, 8, 8, 8)
         } else {
             imageView = (convertView as ImageView?)!!

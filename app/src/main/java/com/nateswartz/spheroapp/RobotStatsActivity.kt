@@ -21,18 +21,6 @@ import android.view.MenuItem
 
 class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
 
-    private var TAG = "RobotStatsActivity"
-
-    private val dataFormat = arrayListOf("X Accel: %.4f",
-                                         "Y Accel: %.4f",
-                                         "Z Accel: %.4f",
-                                         "Roll: %3d°",
-                                         "Pitch: %3d°",
-                                         "Yaw: %3d°",
-                                         "Charges: %s",
-                                         "Battery: %s",
-                                         "Seconds Since Charge: %s")
-
     private val dataBinding = Array(9) {_ -> ""}
     private lateinit var dataAdapter: ArrayAdapter<String>
 
@@ -48,17 +36,14 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.e(TAG, "onCreate")
+        Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_robot_stats)
         val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
         setActionBar(myToolbar)
 
-        // Get an ActionBar corresponding to this toolbar
-        val ab = actionBar
-
         // Enable the Up button
-        ab!!.setDisplayHomeAsUpEnabled(true)
+        actionBar!!.setDisplayHomeAsUpEnabled(true)
 
         dataAdapter = ArrayAdapter(this,
                 android.R.layout.simple_list_item_1, dataBinding)
@@ -68,7 +53,7 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
     }
 
     override fun onStart() {
-        Log.e(TAG, "onStart")
+        Log.d(TAG, "onStart")
         super.onStart()
 
         val btIntent = Intent(this, BluetoothControllerService::class.java)
@@ -76,7 +61,7 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
     }
 
     override fun onStop() {
-        Log.e(TAG, "onStop")
+        Log.d(TAG, "onStop")
         if (isRobotServiceBound) {
             unbindService(robotServiceConnection)
         }
@@ -87,7 +72,7 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
     }
 
     override fun onDestroy() {
-        Log.e(TAG, "onDestroy")
+        Log.d(TAG, "onDestroy")
         super.onDestroy()
     }
 
@@ -99,10 +84,10 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
                 SensorFlag.SENSOR_FLAG_GYRO_NORMALIZED,
                 SensorFlag.SENSOR_FLAG_MOTOR_BACKEMF_NORMALIZED,
                 SensorFlag.SENSOR_FLAG_ATTITUDE)
-        mRobot!!.enableSensors(sensorFlag, SensorControl.StreamingRate.STREAMING_RATE1)
-        mRobot!!.enableStabilization(false)
-        mRobot!!.addResponseListener(this)
-        mRobot!!.sendCommand(GetPowerStateCommand())
+        robot!!.enableSensors(sensorFlag, SensorControl.StreamingRate.STREAMING_RATE1)
+        robot!!.enableStabilization(false)
+        robot!!.addResponseListener(this)
+        robot!!.sendCommand(GetPowerStateCommand())
     }
 
     override fun disableRobotItems() {
@@ -110,8 +95,8 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
     }
 
     private fun setupButtons() {
-        toggle_stabilization.setOnCheckedChangeListener({ _, isChecked ->
-            mRobot?.enableStabilization(isChecked) })
+        toggle_stabilization.setOnCheckedChangeListener { _, isChecked ->
+            robot?.enableStabilization(isChecked) }
     }
 
     override fun handleResponse(response: DeviceResponse?, robot: Robot?) {
@@ -140,7 +125,7 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
 
         //Check the asyncMessage type to see if it is a DeviceSensor message
         if (asyncMessage is DeviceSensorAsyncMessage) {
-            mRobot!!.sendCommand(GetPowerStateCommand())
+            this.robot!!.sendCommand(GetPowerStateCommand())
             if (asyncMessage.sensorDataFrames == null
                     || asyncMessage.sensorDataFrames.isEmpty()
                     || asyncMessage.sensorDataFrames[0] == null)
@@ -171,7 +156,7 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
             return
 
         //mLeftMotor.setText(sensor.leftMotorValue.toString())
-       // mRightMotor.setText(sensor.rightMotorValue.toString())
+        //mRightMotor.setText(sensor.rightMotorValue.toString())
     }
 
     private fun displayGyroscope(data: GyroData) {
@@ -211,5 +196,19 @@ class RobotStatsActivity : BaseRobotActivity(), ResponseListener {
         //mQ2Value.setText(String.format("%.5f", quaternion.getQ2()))
         //mQ3Value.setText(String.format("%.5f", quaternion.getQ3()))
 
+    }
+
+    companion object {
+        private const val TAG = "RobotStatsActivity"
+
+        private val dataFormat = arrayListOf("X Accel: %.4f",
+                "Y Accel: %.4f",
+                "Z Accel: %.4f",
+                "Roll: %3d°",
+                "Pitch: %3d°",
+                "Yaw: %3d°",
+                "Charges: %s",
+                "Battery: %s",
+                "Seconds Since Charge: %s")
     }
 }

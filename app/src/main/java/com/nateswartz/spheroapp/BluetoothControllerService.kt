@@ -12,18 +12,18 @@ import android.util.Log
 
 
 class BluetoothControllerService : Service() {
-    private var mListeners: MutableList<BluetoothServiceListener> = mutableListOf()
-    private val mBinder = BluetoothBinder()
-    private val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    private var mBluetoothChanged = false
-    private var mHasActiveBluetooth = false
+    private var listeners: MutableList<BluetoothServiceListener> = mutableListOf()
+    private val binder = BluetoothBinder()
+    private val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    private var bluetoothChanged = false
+    private var hasActiveBluetooth = false
 
     inner class BluetoothBinder : Binder() {
         internal val service: BluetoothControllerService
             get() = this@BluetoothControllerService
     }
 
-    private val mReceiver = object : BroadcastReceiver() {
+    private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
 
@@ -35,9 +35,9 @@ class BluetoothControllerService : Service() {
                     BluetoothAdapter.STATE_TURNING_OFF -> Log.e("Activity","Turning Bluetooth off...")
                     BluetoothAdapter.STATE_ON -> {
                         Log.e("Activity","Bluetooth on")
-                        mBluetoothChanged = true
-                        mHasActiveBluetooth = true
-                        for (listener in mListeners) {
+                        bluetoothChanged = true
+                        hasActiveBluetooth = true
+                        for (listener in listeners) {
                             listener.handleBluetoothChange(state)
                         }
                     }
@@ -48,40 +48,40 @@ class BluetoothControllerService : Service() {
     }
 
     override fun onCreate() {
-        Log.e("Service", "onCreate")
+        Log.d("Service", "onCreate")
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        registerReceiver(mReceiver, filter)
+        registerReceiver(receiver, filter)
     }
 
     override fun onDestroy() {
-        Log.e("Service", "onDestroy")
+        Log.d("Service", "onDestroy")
         //If the DiscoveryAgent is in discovery mode, stop it.
-        if (mBluetoothAdapter.isEnabled && mBluetoothChanged) {
+        if (bluetoothAdapter.isEnabled && bluetoothChanged) {
             Log.e("Activity", "disable Bluetooth")
-            mBluetoothAdapter.disable()
+            bluetoothAdapter.disable()
         }
-        unregisterReceiver(mReceiver)
+        unregisterReceiver(receiver)
     }
 
     override fun onBind(intent: Intent): IBinder {
-        Log.e("Service", "onBind")
-        if (!mBluetoothAdapter.isEnabled) {
-            mBluetoothAdapter.enable()
+        Log.d("Service", "onBind")
+        if (!bluetoothAdapter.isEnabled) {
+            bluetoothAdapter.enable()
         } else {
-            mHasActiveBluetooth = true
+            hasActiveBluetooth = true
         }
-        return mBinder
+        return binder
     }
 
     fun hasActiveBluetooth() : Boolean {
-        return mHasActiveBluetooth;
+        return hasActiveBluetooth
     }
 
     fun addListener(listener: BluetoothServiceListener) {
-        mListeners.add(listener)
+        listeners.add(listener)
     }
 
     fun removeListener(listener: BluetoothServiceListener) {
-        mListeners.remove(listener)
+        listeners.remove(listener)
     }
 }

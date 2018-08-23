@@ -16,8 +16,6 @@ import android.widget.GridView
 
 class MainActivity : BaseRobotActivity() {
 
-    private var TAG = "MainActivity"
-
     private var robotActions = RobotActions()
     private var robotDances = RobotDances()
     private val clicks = HashMap<Int, Int>()
@@ -34,14 +32,14 @@ class MainActivity : BaseRobotActivity() {
         return when (item.itemId) {
             R.id.action_settings -> {
                 // User chose the "Settings" item, show the app settings UI...
-                Log.e(TAG, "Menu clicked")
+                Log.i(TAG, "Menu clicked")
                 val intent = Intent(this, RobotStatsActivity::class.java)
                 startActivity(intent)
                 true
             }
             R.id.action_macros -> {
                 // User chose the "Settings" item, show the app settings UI...
-                Log.e(TAG, "Menu clicked")
+                Log.i(TAG, "Menu clicked")
                 val intent = Intent(this, RobotMacrosActivity::class.java)
                 startActivity(intent)
                 true
@@ -54,14 +52,14 @@ class MainActivity : BaseRobotActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.e(TAG, "onCreate")
+        Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupActivity()
     }
 
     override fun onStart() {
-        Log.e(TAG, "onStart")
+        Log.d(TAG, "onStart")
         val intent = Intent(this@MainActivity, BluetoothControllerService::class.java)
         bindService(intent, bluetoothServiceConnection, Context.BIND_AUTO_CREATE)
         super.onStart()
@@ -69,7 +67,7 @@ class MainActivity : BaseRobotActivity() {
 
     override fun onStop() {
         super.onStop()
-        Log.e(TAG, "onStop")
+        Log.d(TAG, "onStop")
         if (isRobotServiceBound) {
             unbindService(robotServiceConnection)
         }
@@ -79,7 +77,7 @@ class MainActivity : BaseRobotActivity() {
     }
 
     override fun onDestroy() {
-        Log.e(TAG, "onDestroy")
+        Log.d(TAG, "onDestroy")
         super.onDestroy()
         if (mp.isPlaying) {
             mp.stop()
@@ -135,18 +133,22 @@ class MainActivity : BaseRobotActivity() {
         if (!mp.isPlaying) {
             mp = MediaPlayer.create(applicationContext, resid)
             mp.start()
-            if (mRobot?.isConnected == true) {
-                robotActions.setRobotToDefaultState(mRobot!!, this)
+            if (robot?.isConnected == true) {
+                robotActions.setRobotToDefaultState(robot!!, this)
                 val macro = song()
-                macro.setRobot(mRobot!!.robot)
+                macro.setRobot(robot!!.robot)
                 macro.playMacro()
             }
         } else if (clicks.containsKey(resid) && clicks[resid]!! >= clicksToStop) {
-            if (mRobot?.isConnected == true) robotActions.setRobotToDefaultState(mRobot!!, this)
+            if (robot?.isConnected == true) robotActions.setRobotToDefaultState(robot!!, this)
             mp.stop()
             clicks[resid] = 0
         } else {
             recordClick(resid)
         }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }

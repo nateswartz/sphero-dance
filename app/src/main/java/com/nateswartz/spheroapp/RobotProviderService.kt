@@ -13,10 +13,10 @@ import com.orbotix.common.RobotChangedStateListener
 
 
 class RobotProviderService : Service(), RobotChangedStateListener {
-    private var mListeners: MutableList<RobotServiceListener> = mutableListOf()
-    private val mDiscoveryAgent = DualStackDiscoveryAgent()
-    private var mRobot: ConvenienceRobot? = null
-    private val mBinder = RobotBinder()
+    private var listeners: MutableList<RobotServiceListener> = mutableListOf()
+    private val discoveryAgent = DualStackDiscoveryAgent()
+    private var robot: ConvenienceRobot? = null
+    private val binder = RobotBinder()
 
     inner class RobotBinder : Binder() {
         internal val service: RobotProviderService
@@ -24,59 +24,59 @@ class RobotProviderService : Service(), RobotChangedStateListener {
     }
 
     override fun onCreate() {
-        Log.e("Service", "onCreate")
-        mDiscoveryAgent.addRobotStateListener(this)
+        Log.d("Service", "onCreate")
+        discoveryAgent.addRobotStateListener(this)
     }
 
     override fun onDestroy() {
-        Log.e("Service", "onDestroy")
+        Log.d("Service", "onDestroy")
         //If the DiscoveryAgent is in discovery mode, stop it.
-        if (mDiscoveryAgent.isDiscovering) {
-            mDiscoveryAgent.stopDiscovery()
+        if (discoveryAgent.isDiscovering) {
+            discoveryAgent.stopDiscovery()
         }
 
         //If a robot is connected to the device, disconnect it
-        mRobot?.disconnect();
-        mRobot = null;
+        robot?.disconnect()
+        robot = null
     }
 
     override fun onBind(intent: Intent): IBinder {
-        Log.e("Service", "onBind")
-        if (!mDiscoveryAgent.isDiscovering) {
+        Log.d("Service", "onBind")
+        if (!discoveryAgent.isDiscovering) {
             try {
                 Log.e("Service", "Discovering...")
-                mDiscoveryAgent.startDiscovery(applicationContext)
+                discoveryAgent.startDiscovery(applicationContext)
             } catch (e: DiscoveryException) {
                 Log.e("Service", "DiscoveryException: " + e.message)
             }
         }
-        return mBinder
+        return binder
     }
 
     override fun handleRobotChangedState(robot: Robot, type: RobotChangedStateListener.RobotChangedStateNotificationType) {
-        Log.e("Service", "handleRobotChangedState " + type)
+        Log.d("Service", "handleRobotChangedState $type")
         when (type)
         {
-            RobotChangedStateListener.RobotChangedStateNotificationType.Online -> mRobot = ConvenienceRobot(robot)
+            RobotChangedStateListener.RobotChangedStateNotificationType.Online -> this.robot = ConvenienceRobot(robot)
         }
-        for (listener in mListeners) {
+        for (listener in listeners) {
             listener.handleRobotChange(ConvenienceRobot(robot), type)
         }
     }
 
     fun hasActiveRobot() : Boolean {
-        return mRobot?.isConnected == true
+        return robot?.isConnected == true
     }
 
     fun getRobot() : ConvenienceRobot {
-        return mRobot!!
+        return robot!!
     }
 
     fun addListener(listener: RobotServiceListener) {
-        mListeners.add(listener)
+        listeners.add(listener)
     }
 
     fun removeListener(listener: RobotServiceListener) {
-        mListeners.remove(listener)
+        listeners.remove(listener)
     }
 }

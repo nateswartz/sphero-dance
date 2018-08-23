@@ -15,7 +15,7 @@ import com.orbotix.macro.cmd.*
 class RobotActions {
 
     fun spin(): MacroObject {
-        var macro = MacroObject()
+        val macro = MacroObject()
 
         macro.addCommand(LoopStart(500))
         macro.addCommand(RawMotor(RawMotor.DriveMode.REVERSE, 255, RawMotor.DriveMode.FORWARD, 255, 10))
@@ -25,7 +25,7 @@ class RobotActions {
     }
 
     fun shake(): MacroObject {
-        var macro = MacroObject()
+        val macro = MacroObject()
 
         macro.addCommand(Stabilization(false, 0))
         macro.addCommand(LoopStart(500))
@@ -71,7 +71,7 @@ class RobotActions {
 
     fun setRobotToDefaultState(robot: ConvenienceRobot, context: Context) {
         val activity = context as Activity
-        val sharedPref = activity?.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val sharedPref = activity.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         val savedRedValue = sharedPref.getInt(context.getString(R.string.saved_red_value), -1)
         val savedGreenValue = sharedPref.getInt(context.getString(R.string.saved_green_value), -1)
         val savedBlueValue = sharedPref.getInt(context.getString(R.string.saved_blue_value), -1)

@@ -17,9 +17,7 @@ abstract class BaseRobotActivity : Activity(), RobotServiceListener, BluetoothSe
     var isRobotServiceBound = false
     var isBluetoothServiceBound = false
     var robotAlreadyConnected = false
-    var mRobot: ConvenienceRobot? = null
-
-    private var TAG = "BaseRobotActivity"
+    var robot: ConvenienceRobot? = null
 
     val bluetoothServiceConnection = object : ServiceConnection {
         private var boundBluetoothService: BluetoothControllerService? = null
@@ -87,21 +85,21 @@ abstract class BaseRobotActivity : Activity(), RobotServiceListener, BluetoothSe
                 }
                 robotAlreadyConnected = false
                 isRobotServiceBound = true
-                mRobot = robot
+                this.robot = robot
                 val sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
                 val savedRedValue = sharedPref.getInt(getString(R.string.saved_red_value), -1)
                 val savedGreenValue = sharedPref.getInt(getString(R.string.saved_green_value), -1)
                 val savedBlueValue = sharedPref.getInt(getString(R.string.saved_blue_value), -1)
 
                 if (savedRedValue != 1) {
-                    mRobot?.setLed(savedRedValue.toFloat() / 255, savedGreenValue.toFloat() / 255, savedBlueValue.toFloat() / 255 )
+                    this.robot?.setLed(savedRedValue.toFloat() / 255, savedGreenValue.toFloat() / 255, savedBlueValue.toFloat() / 255 )
                 }
 
                 setupRobotItems()
             }
             RobotChangedStateListener.RobotChangedStateNotificationType.Offline -> {
                 Log.e(TAG, "handleRobotDisconnected")
-                mRobot = null
+                this.robot = null
 
                 disableRobotItems()
             }
@@ -119,4 +117,8 @@ abstract class BaseRobotActivity : Activity(), RobotServiceListener, BluetoothSe
 
     abstract fun setupRobotItems()
     abstract fun disableRobotItems()
+
+    companion object {
+        private const val TAG = "BaseRobotActivity"
+    }
 }

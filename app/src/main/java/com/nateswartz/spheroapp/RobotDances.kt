@@ -6,7 +6,7 @@ import com.orbotix.macro.cmd.*
 /**
  * Created by nates on 11/23/2017.
  */
-class RobotDances() {
+class RobotDances {
 
     fun danielTigerDance() : MacroObject {
         val macro = MacroObject()

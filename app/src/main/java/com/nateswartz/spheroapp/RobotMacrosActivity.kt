@@ -15,8 +15,6 @@ import kotlinx.android.synthetic.main.activity_robot_macros.*
 
 class RobotMacrosActivity : BaseRobotActivity() {
 
-    private var TAG = "RobotMacrosActivity"
-
     private var mRobotActions = RobotActions()
 
     private var redValue = 100
@@ -39,9 +37,9 @@ class RobotMacrosActivity : BaseRobotActivity() {
                 putInt(getString(R.string.saved_red_value), redValue)
                 putInt(getString(R.string.saved_green_value), greenValue)
                 putInt(getString(R.string.saved_blue_value), blueValue)
-                commit()
+                apply()
             }
-            mRobot?.setLed(redValue.toFloat() / 255, greenValue.toFloat() / 255, blueValue.toFloat() / 255)
+            robot?.setLed(redValue.toFloat() / 255, greenValue.toFloat() / 255, blueValue.toFloat() / 255)
         }
 
         override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -65,23 +63,20 @@ class RobotMacrosActivity : BaseRobotActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.e(TAG, "onCreate")
+        Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_robot_macros)
         val myToolbar = findViewById<Toolbar>(R.id.my_toolbar)
         setActionBar(myToolbar)
 
-        // Get a support ActionBar corresponding to this toolbar
-        val ab = actionBar
-
         // Enable the Up button
-        ab!!.setDisplayHomeAsUpEnabled(true)
+        actionBar!!.setDisplayHomeAsUpEnabled(true)
 
         setupButtons()
     }
 
     override fun onStart() {
-        Log.e(TAG, "onStart")
+        Log.d(TAG, "onStart")
         super.onStart()
 
         val btIntent = Intent(this, BluetoothControllerService::class.java)
@@ -89,7 +84,7 @@ class RobotMacrosActivity : BaseRobotActivity() {
     }
 
     override fun onStop() {
-        Log.e(TAG, "onStop")
+        Log.d(TAG, "onStop")
         if (isRobotServiceBound) {
             unbindService(robotServiceConnection)
         }
@@ -100,7 +95,7 @@ class RobotMacrosActivity : BaseRobotActivity() {
     }
 
     override fun onDestroy() {
-        Log.e(TAG, "onDestroy")
+        Log.d(TAG, "onDestroy")
         super.onDestroy()
     }
 
@@ -158,12 +153,15 @@ class RobotMacrosActivity : BaseRobotActivity() {
     }
 
     private fun triggerMacro(actionProvider: () -> MacroObject) {
-        if (mRobot?.isConnected == true) {
-            mRobotActions.setRobotToDefaultState(mRobot!!, this)
+        if (robot?.isConnected == true) {
+            mRobotActions.setRobotToDefaultState(robot!!, this)
             val macro = actionProvider()
-            macro.setRobot(mRobot!!.robot)
+            macro.setRobot(robot!!.robot)
             macro.playMacro()
         }
     }
 
+    companion object {
+        private const val TAG = "RobotMacrosActivity"
+    }
 }
